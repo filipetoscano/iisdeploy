@@ -1,6 +1,7 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Yttrium.IisDeploy;
@@ -8,7 +9,7 @@ using Yttrium.IisDeploy;
 namespace IisDeploy
 {
     /// <summary />
-    [Command( "configure" )]
+    [Command( "configure", Description = "Configures IIS websites / virtual directories" )]
     public class ConfigureCommand : CommandBase
     {
         private readonly ILogger<ConfigureCommand> _logger;
@@ -29,7 +30,7 @@ namespace IisDeploy
 
         /// <summary />
         [Option( "-x|--blue-green", CommandOptionType.NoValue, Description = "Whether to use blue/green alternates" )]
-        public bool BlueGreen { get; set; }
+        public bool? BlueGreen { get; set; }
 
         /// <summary />
         [Option( "-v|--verbose", CommandOptionType.NoValue, Description = "Verbose output" )]
@@ -58,7 +59,7 @@ namespace IisDeploy
             /*
              * 
              */
-            MutateDefinition( definition, config.BlueGreen );
+            var next = MutateDefinition( definition, config.BlueGreen );
 
 
             /*
@@ -66,8 +67,9 @@ namespace IisDeploy
              */
             if ( this.Verbose == true )
             {
-                var def = JsonSerializer.Serialize( definition );
-                var cfg = JsonSerializer.Serialize( config );
+                var jso = new JsonSerializerOptions() { WriteIndented = true };
+                var def = JsonSerializer.Serialize( definition, jso );
+                var cfg = JsonSerializer.Serialize( config, jso );
 
                 _logger.LogDebug( "Definition: {Definition}", def );
                 _logger.LogDebug( "Config: {Config}", cfg );
@@ -79,7 +81,20 @@ namespace IisDeploy
             /*
              * 
              */
-            await _deployer.Configure( definition );
+            await Task.Delay( 1 );
+            // await _deployer.Configure( definition );
+
+
+            /*
+             * Update color
+             */
+            if ( config.BlueGreen == true )
+            {
+                var bg = Path.Combine( definition.RootPhysicalPath, "blue-green.txt" );
+
+                _logger.LogInformation( "Configured {Color}", next );
+                File.WriteAllText( bg, next );
+            }
 
             return 0;
         }

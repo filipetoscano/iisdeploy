@@ -1,7 +1,7 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
-using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Yttrium.IisDeploy;
 
 namespace IisDeploy
@@ -19,6 +19,10 @@ namespace IisDeploy
         [FileExists]
         [Required]
         public string DefinitionFile { get; set; }
+
+        /// <summary />
+        [Option( "-v|--verbose", CommandOptionType.NoValue, Description = "Verbose output" )]
+        public bool Verbose { get; set; }
 
 
         /// <summary />
@@ -41,11 +45,24 @@ namespace IisDeploy
             /*
              * 
              */
+            if ( this.Verbose == true )
+            {
+                var jso = new JsonSerializerOptions() { WriteIndented = true };
+                var def = JsonSerializer.Serialize( definition, jso );
+
+                _logger.LogDebug( "Definition: {Definition}", def );
+            }
+
+
+            /*
+             * 
+             */
             var current = LoadBlueGreen( definition );
             var next = current == "blue" ? "green" : "blue";
 
+            _logger.LogInformation( "Root: {Path}", definition.RootPhysicalPath );
             _logger.LogInformation( "Current: {Current}", current );
-            _logger.LogInformation( "Next: {Next}", next );
+            _logger.LogInformation( "Next deployment: {Next}", next );
 
             return 1;
         }

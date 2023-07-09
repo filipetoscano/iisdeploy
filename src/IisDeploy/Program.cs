@@ -24,7 +24,7 @@ namespace IisDeploy
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.FromLogContext()
-                .WriteTo.Console()
+                .WriteTo.Console( outputTemplate: @"{Level:w3}: {Message:lj}{NewLine}{Exception}" )
                 .CreateLogger();
 
             var logger = Log.Logger.ForContext<Program>();

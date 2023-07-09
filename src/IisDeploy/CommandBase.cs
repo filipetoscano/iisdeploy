@@ -79,7 +79,7 @@ namespace IisDeploy
                     continue;
 
                 foreach ( var vd in s.VirtualDirectories )
-                    vd.PhysicalPath = Path.Combine( s.PhysicalPath, next );
+                    vd.PhysicalPath = Path.Combine( vd.PhysicalPath, next );
             }
 
             return next;

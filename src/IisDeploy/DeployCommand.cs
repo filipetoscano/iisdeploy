@@ -8,7 +8,7 @@ using Yttrium.IisDeploy;
 namespace IisDeploy
 {
     /// <summary />
-    [Command( "deploy" )]
+    [Command( "deploy", Description = "Deploys files from source to target directories" )]
     public class DeployCommand : CommandBase
     {
         private readonly ILogger<DeployCommand> _logger;
@@ -58,7 +58,7 @@ namespace IisDeploy
             /*
              * 
              */
-            MutateDefinition( definition, config.BlueGreen );
+            var next = MutateDefinition( definition, config.BlueGreen );
 
 
             /*
@@ -66,8 +66,9 @@ namespace IisDeploy
              */
             if ( this.Verbose == true )
             {
-                var def = JsonSerializer.Serialize( definition );
-                var cfg = JsonSerializer.Serialize( config );
+                var jso = new JsonSerializerOptions() { WriteIndented = true };
+                var def = JsonSerializer.Serialize( definition, jso );
+                var cfg = JsonSerializer.Serialize( config, jso );
 
                 _logger.LogDebug( "Definition: {Definition}", def );
                 _logger.LogDebug( "Config: {Config}", cfg );
