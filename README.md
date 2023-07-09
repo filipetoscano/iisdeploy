@@ -1,2 +1,4 @@
-# iisdeploy
-.NET tool to manage IIS websites
+iisdeploy
+=========================================================================
+
+.NET tool to manage IIS websites.
