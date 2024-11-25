@@ -11,6 +11,7 @@ namespace IisDeploy
     [Subcommand( typeof( ColorCommand ) )]
     [Subcommand( typeof( ConfigureCommand ) )]
     [Subcommand( typeof( DeployCommand ) )]
+    [Subcommand( typeof( GetCommand ) )]
     [HelpOption]
     [VersionOption( "1.0.0" )]
     public class Program

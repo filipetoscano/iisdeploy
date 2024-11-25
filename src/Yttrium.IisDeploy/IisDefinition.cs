@@ -73,18 +73,30 @@ public class SiteDefinition
 
 
     /// <summary />
+    public List<ApplicationDefinition>? Applications { get; set; }
+
+    /// <summary />
     public List<VirtualDirectoryDefinition>? VirtualDirectories { get; set; }
+}
+
+
+/// <summary />
+public class ApplicationDefinition
+{
+    /// <summary />
+    public string Path { get; set; } = default!;
+
+    /// <summary />
+    public string PhysicalPath { get; set; } = default!;
+
+    /// <summary />
+    public string ApplicationPoolName { get; set; } = default!;
 }
 
 
 /// <summary />
 public class VirtualDirectoryDefinition
 {
-    /// <summary>
-    /// Name of the website.
-    /// </summary>
-    public string Name { get; set; } = default!;
-
     /// <summary />
     public string Path { get; set; } = default!;
 

@@ -14,6 +14,24 @@ public interface IIisDeployer
     /// </param>
     Task Deploy( IisDefinition definition, DeploymentConfig config );
 
+
+    /// <summary />
+    Task<IisColor> ColorGet();
+
+
+    /// <summary />
+    Task ColorSet( IisColor color );
+
+
+    /// <summary>
+    /// Gets the current IIS definition.
+    /// </summary>
+    /// <returns>
+    /// Entire IIS definition.
+    /// </returns>
+    Task<IisDefinition> Get();
+
+
     /// <summary>
     /// Configures IIS, upserting sites and virtual directories.
     /// </summary>

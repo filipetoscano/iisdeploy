@@ -1,7 +1,6 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Yttrium.IisDeploy;
@@ -52,14 +51,27 @@ namespace IisDeploy
             /*
              *
              */
-            var definition = LoadDefinition( _loader, this.DefinitionFile );
-            var config = LoadConfiguration( _loader, this.BlueGreen, this.ConfigFile );
+            IisColor? next = null;
+
+            if ( this.BlueGreen == true )
+            {
+                var color = await _deployer.ColorGet();
+                next = color == IisColor.Blue ? IisColor.Green : IisColor.Green;
+            }
 
 
             /*
              * 
              */
-            var next = MutateDefinition( definition, config.BlueGreen );
+            var definition = LoadDefinition( _loader, this.DefinitionFile );
+            var config = LoadConfiguration( _loader, this.ConfigFile );
+
+
+            /*
+             * 
+             */
+            if ( next.HasValue == true )
+                MutateDefinition( definition, next.Value );
 
 
             /*
@@ -81,20 +93,10 @@ namespace IisDeploy
             /*
              * 
              */
-            await Task.Delay( 1 );
-            // await _deployer.Configure( definition );
+            await _deployer.Configure( definition );
 
-
-            /*
-             * Update color
-             */
-            if ( config.BlueGreen == true )
-            {
-                var bg = Path.Combine( definition.RootPhysicalPath, "blue-green.txt" );
-
-                _logger.LogInformation( "Configured {Color}", next );
-                File.WriteAllText( bg, next );
-            }
+            if ( next.HasValue == true )
+                await _deployer.ColorSet( next.Value );
 
             return 0;
         }

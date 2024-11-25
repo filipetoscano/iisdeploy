@@ -24,6 +24,9 @@ public class FileLoader : IFileLoader
         if ( obj == null )
             throw new InvalidOperationException( "Invalid configuration file, yielded null object." );
 
+        /*
+         * Resolve paths
+         */
         if ( obj.RootSource != null )
         {
             foreach ( var key in obj.Source.Keys.ToArray() )
@@ -37,13 +40,6 @@ public class FileLoader : IFileLoader
 
 
     /// <inheritdoc />
-    public DeploymentConfig LoadConfigXml( Stream stream )
-    {
-        throw new NotImplementedException();
-    }
-
-
-    /// <inheritdoc />
     public IisDefinition LoadDefinitionJson( Stream stream )
     {
         var obj = JsonSerializer.Deserialize<IisDefinition>( stream );
@@ -51,6 +47,10 @@ public class FileLoader : IFileLoader
         if ( obj == null )
             throw new InvalidOperationException( "Invalid configuration file, yielded null object." );
 
+
+        /*
+         * Resolve paths
+         */
         foreach ( var s in obj.Sites )
         {
             s.PhysicalPath = Path.Combine( obj.RootPhysicalPath, s.PhysicalPath );
@@ -63,6 +63,13 @@ public class FileLoader : IFileLoader
         }
 
         return obj;
+    }
+
+
+    /// <inheritdoc />
+    public DeploymentConfig LoadConfigXml( Stream stream )
+    {
+        throw new NotImplementedException();
     }
 
 

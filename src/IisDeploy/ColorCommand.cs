@@ -1,7 +1,8 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
+using System;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Yttrium.IisDeploy;
 
 namespace IisDeploy
@@ -11,60 +12,49 @@ namespace IisDeploy
     public class ColorCommand : CommandBase
     {
         private readonly ILogger<ColorCommand> _logger;
-        private readonly IFileLoader _loader;
+        private readonly IIisDeployer _deployer;
+
+
+        [Option( "--json", CommandOptionType.NoValue, Description = "Output as JSON object" )]
+        public bool AsJson { get; set; } = false;
 
 
         /// <summary />
-        [Argument( 0, Description = "Definition file (XML/JSON)" )]
-        [FileExists]
-        [Required]
-        public string DefinitionFile { get; set; }
-
-        /// <summary />
-        [Option( "-v|--verbose", CommandOptionType.NoValue, Description = "Verbose output" )]
-        public bool Verbose { get; set; }
-
-
-        /// <summary />
-        public ColorCommand( ILogger<ColorCommand> logger, IFileLoader loader )
+        public ColorCommand( ILogger<ColorCommand> logger, IIisDeployer deployer )
         {
             _logger = logger;
-            _loader = loader;
+            _deployer = deployer;
         }
 
 
         /// <summary />
-        public int OnExecute()
+        public async Task<int> OnExecuteAsync()
         {
-            /*
-             * 
-             */
-            var definition = LoadDefinition( _loader, this.DefinitionFile );
+            var curr = await _deployer.ColorGet();
+            var next = curr == IisColor.Blue ? IisColor.Green : IisColor.Blue;
 
-
-            /*
-             * 
-             */
-            if ( this.Verbose == true )
+            if ( this.AsJson == true )
             {
-                var jso = new JsonSerializerOptions() { WriteIndented = true };
-                var def = JsonSerializer.Serialize( definition, jso );
+                var obj = new
+                {
+                    Current = curr,
+                    Next = next,
+                };
 
-                _logger.LogDebug( "Definition: {Definition}", def );
+                var json = JsonSerializer.Serialize( obj, new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                } );
+
+                Console.WriteLine( json );
+            }
+            else
+            {
+                _logger.LogInformation( "Current: {Current}", curr );
+                _logger.LogInformation( "Next: {Next}", next );
             }
 
-
-            /*
-             * 
-             */
-            var current = LoadBlueGreen( definition );
-            var next = current == "blue" ? "green" : "blue";
-
-            _logger.LogInformation( "Root: {Path}", definition.RootPhysicalPath );
-            _logger.LogInformation( "Current: {Current}", current );
-            _logger.LogInformation( "Next deployment: {Next}", next );
-
-            return 1;
+            return 0;
         }
     }
 }

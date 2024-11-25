@@ -4,11 +4,6 @@
 public class DeploymentConfig
 {
     /// <summary>
-    /// Whether deployment should alternate between blue/green.
-    /// </summary>
-    public bool BlueGreen { get; set; } = false;
-
-    /// <summary>
     /// Root folder for application source folders.
     /// </summary>
     /// <remarks>

@@ -1,11 +1,10 @@
-﻿using CliWrap;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Web.Administration;
 
 namespace Yttrium.IisDeploy;
 
 /// <summary />
-public class IisDeployer : IIisDeployer
+public partial class IisDeployer : IIisDeployer
 {
     private readonly ILogger<IisDeployer> _logger;
 
@@ -14,89 +13,6 @@ public class IisDeployer : IIisDeployer
     public IisDeployer( ILogger<IisDeployer> logger )
     {
         _logger = logger;
-    }
-
-
-    /// <inheritdoc />
-    public async Task Deploy( IisDefinition definition, DeploymentConfig config )
-    {
-        /*
-         * 
-         */
-        const string Robocopy = @"c:\windows\system32\robocopy.exe";
-
-        if ( File.Exists( Robocopy ) == false )
-            throw new InvalidOperationException( "Robocopy not found" );
-
-
-        /*
-         * Websites
-         */
-        foreach ( var s in definition.Sites )
-        {
-            if ( config.Source.ContainsKey( s.Name ) == false )
-                throw new InvalidOperationException( $"No source for website '{s.Name}'" );
-
-            var from = config.Source[ s.Name ];
-            var to = s.PhysicalPath;
-
-            if ( Directory.Exists( from ) == false )
-                throw new InvalidOperationException( $"Source directory '{from}' does not exist" );
-
-            _logger.LogInformation( "--- {Site} ----------------------------------------------------------", s.Name );
-            _logger.LogInformation( "Mirror {Site}: {From} >> {To}", s.Name, from, to );
-
-            await Cli.Wrap( Robocopy )
-                .WithArguments( args => args
-                    .Add( "/mir" )
-                    .Add( from )
-                    .Add( to )
-                )
-                .WithStandardOutputPipe( PipeTarget.ToDelegate( s =>
-                {
-                    _logger.LogDebug( s );
-                } ) )
-                .WithValidation( CommandResultValidation.None )
-                .ExecuteAsync();
-        }
-
-
-        /*
-         * Virtual directories
-         */
-        foreach ( var s in definition.Sites )
-        {
-            if ( s.VirtualDirectories == null )
-                continue;
-
-            foreach ( var vd in s.VirtualDirectories )
-            {
-                if ( config.Source.ContainsKey( vd.Name ) == false )
-                    throw new InvalidOperationException( $"No source for vdir '{vd.Name}'" );
-
-                var from = config.Source[ vd.Name ];
-                var to = vd.PhysicalPath;
-
-                if ( Directory.Exists( from ) == false )
-                    throw new InvalidOperationException( $"Source directory '{from}' does not exist" );
-
-                _logger.LogInformation( "--- {Vdir} ----------------------------------------------------------", vd.Name );
-                _logger.LogInformation( "Mirror {Vdir}: {From} >> {To}", vd.Name, from, to );
-
-                await Cli.Wrap( Robocopy )
-                    .WithArguments( args => args
-                        .Add( "/mir" )
-                        .Add( from )
-                        .Add( to )
-                    )
-                    .WithStandardOutputPipe( PipeTarget.ToDelegate( s =>
-                    {
-                        _logger.LogDebug( s );
-                    } ) )
-                    .WithValidation( CommandResultValidation.None )
-                    .ExecuteAsync();
-            }
-        }
     }
 
 
@@ -110,8 +26,10 @@ public class IisDeployer : IIisDeployer
 
 
         /*
-         * Add pools
+         * #1. Ensure pools
          */
+        _logger.LogDebug( "Ensure application pools" );
+
         foreach ( var pd in definition.Pools )
         {
             var p = mgr.ApplicationPools.SingleOrDefault( x => x.Name == pd.Name );
@@ -143,24 +61,22 @@ public class IisDeployer : IIisDeployer
             }
         }
 
+        mgr.CommitChanges();
+
 
         /*
-         * Add sites
+         * #2. Ensure websites
+         * A website always has an application running in the root, which
+         * always corresponds to a virtual directory!
          */
+        _logger.LogDebug( "Ensure web sites / root apps" );
+
         foreach ( var sd in definition.Sites )
         {
             var s = mgr.Sites.SingleOrDefault( x => x.Name == sd.Name );
 
             if ( s == null )
                 s = mgr.Sites.Add( sd.Name, sd.PhysicalPath, sd.Bindings.First().Port );
-
-
-            /*
-             * Path
-             */
-            var app = s.Applications.Single();
-            app.Path = sd.PhysicalPath;
-            app.ApplicationPoolName = sd.ApplicationPoolName;
 
 
             /*
@@ -173,23 +89,56 @@ public class IisDeployer : IIisDeployer
                 b.AddTo( s.Bindings );
 
             s.ServerAutoStart = true;
+
+
+            /*
+             * Root application
+             */
+            var app = s.Applications[ "/" ];
+            app.VirtualDirectories[ "/" ].PhysicalPath = sd.PhysicalPath;
+            app.ApplicationPoolName = sd.ApplicationPoolName;
         }
 
 
         /*
-         * Remove unmanaged sites?
+         * #3. Ensure virtual directories
+         */
+        _logger.LogDebug( "Ensure vdir apps" );
+
+        foreach ( var sd in definition.Sites )
+        {
+            if ( sd.VirtualDirectories == null )
+                continue;
+
+            var s = mgr.Sites.Single( x => x.Name == sd.Name );
+
+            foreach ( var vdd in sd.VirtualDirectories )
+            {
+                var app = s.Applications.SingleOrDefault( x => x.Path == vdd.Path );
+
+                if ( app == null )
+                {
+                    app = s.Applications.Add( vdd.Path, vdd.PhysicalPath );
+                }
+
+                app.VirtualDirectories[ "/" ].PhysicalPath = vdd.PhysicalPath;
+                app.ApplicationPoolName = vdd.ApplicationPoolName;
+            }
+        }
+
+
+        /*
+         * #4. Remove unmanaged sites
+         * (This will remove all other associated objects, such as vdirs)
          */
         var usite = new Dictionary<string, Site>();
 
         foreach ( var site in mgr.Sites )
         {
-            var attr = site.GetAttribute( "x_auto" );
-
-            if ( attr == null )
-            {
-                usite.Add( site.Name, site );
+            if ( definition.Sites.Any( x => x.Name == site.Name ) == true )
                 continue;
-            }
+
+            usite.Add( site.Name, site );
         }
 
         if ( usite.Count > 0 && true )
@@ -210,7 +159,17 @@ public class IisDeployer : IIisDeployer
 
 
         /*
-         * Remove unmanaged pools?
+         * Remove unmanaged vdir apps
+         */
+
+
+        /*
+         * Remove unmanaged apps
+         */
+
+
+        /*
+         * Remove unmanaged pools
          */
         var upool = new Dictionary<string, ApplicationPool>();
 
@@ -225,13 +184,10 @@ public class IisDeployer : IIisDeployer
             if ( pool.Name == "DefaultAppPool" )
                 continue;
 
-            var attr = pool.GetAttribute( "x_auto" );
-
-            if ( attr == null )
-            {
-                upool.Add( pool.Name, pool );
+            if ( definition.Pools.Any( x => x.Name == pool.Name ) == true )
                 continue;
-            }
+
+            upool.Add( pool.Name, pool );
         }
 
         if ( upool.Count > 0 && true )
@@ -244,7 +200,7 @@ public class IisDeployer : IIisDeployer
             {
                 foreach ( var s in upool )
                 {
-                    _logger.LogWarning( "Removing application pool {SiteName}", s.Key );
+                    _logger.LogWarning( "Removing application pool {PoolName}", s.Key );
                     mgr.ApplicationPools.Remove( s.Value );
                 }
             }
@@ -252,16 +208,24 @@ public class IisDeployer : IIisDeployer
 
 
         /*
-         * 
+         * Save changes to IIS configuration
          */
         mgr.CommitChanges();
 
 
-        return Task.CompletedTask;
-    }
+        /*
+         * Recycle pools
+         */
+        foreach ( var p in mgr.ApplicationPools )
+        {
+            _logger.LogInformation( "Recycling {PoolName}", p.Name );
+            p.Recycle();
+        }
 
-    public Task Configure( object config )
-    {
-        throw new NotImplementedException();
+
+        /*
+         * 
+         */
+        return Task.CompletedTask;
     }
 }

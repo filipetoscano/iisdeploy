@@ -49,16 +49,29 @@ namespace IisDeploy
         public async Task<int> OnExecuteAsync()
         {
             /*
-             * 
+             *
              */
-            var definition = LoadDefinition( _loader, this.DefinitionFile );
-            var config = LoadConfiguration( _loader, this.BlueGreen, this.ConfigFile );
+            IisColor? next = null;
+
+            if ( this.BlueGreen == true )
+            {
+                var color = await _deployer.ColorGet();
+                next = color == IisColor.Blue ? IisColor.Green : IisColor.Green;
+            }
 
 
             /*
              * 
              */
-            var next = MutateDefinition( definition, config.BlueGreen );
+            var definition = LoadDefinition( _loader, this.DefinitionFile );
+            var config = LoadConfiguration( _loader, this.ConfigFile );
+
+
+            /*
+             * 
+             */
+            if ( next.HasValue == true )
+                MutateDefinition( definition, next.Value );
 
 
             /*

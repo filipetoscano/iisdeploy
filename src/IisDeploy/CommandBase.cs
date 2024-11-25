@@ -20,69 +20,37 @@ namespace IisDeploy
 
 
         /// <summary />
-        protected DeploymentConfig LoadConfiguration( IFileLoader loader, bool? blueGreen, string fileName )
+        protected DeploymentConfig LoadConfiguration( IFileLoader loader, string fileName )
         {
             DeploymentConfig cfg;
 
             using ( var stream = new FileStream( fileName, FileMode.Open ) )
             {
-                if ( Path.GetExtension( fileName ) == ".json" )
+                if ( Path.GetExtension( fileName ).ToLowerInvariant() == ".json" )
                     cfg = loader.LoadConfigJson( stream );
                 else
                     cfg = loader.LoadConfigXml( stream );
             }
-
-            if ( blueGreen.HasValue == true )
-                cfg.BlueGreen = blueGreen.Value;
 
             return cfg;
         }
 
 
         /// <summary />
-        protected string LoadBlueGreen( IisDefinition definition )
+        protected void MutateDefinition( IisDefinition definition, IisColor next )
         {
-            var bg = Path.Combine( definition.RootPhysicalPath, "blue-green.txt" );
+            var nextDir = next.ToString();
 
-            if ( File.Exists( bg ) == false )
-                return null;
-
-
-            var current = File.ReadAllText( bg ).Trim().ToLowerInvariant();
-
-            return current;
-        }
-
-
-        /// <summary />
-        protected string MutateDefinition( IisDefinition definition, bool blueGreen )
-        {
-            if ( blueGreen == false )
-                return null;
-
-
-            /*
-             * 
-             */
-            var current = LoadBlueGreen( definition );
-            var next = current == "blue" ? "green" : "blue";
-
-
-            /*
-             * 
-             */
             foreach ( var s in definition.Sites )
             {
-                s.PhysicalPath = Path.Combine( s.PhysicalPath, next );
+                s.PhysicalPath = Path.Combine( s.PhysicalPath, nextDir );
 
                 if ( s.VirtualDirectories == null )
                     continue;
 
                 foreach ( var vd in s.VirtualDirectories )
-                    vd.PhysicalPath = Path.Combine( vd.PhysicalPath, next );
+                    vd.PhysicalPath = Path.Combine( vd.PhysicalPath, nextDir );
             }
-
-            return next;
         }
     }
 }
