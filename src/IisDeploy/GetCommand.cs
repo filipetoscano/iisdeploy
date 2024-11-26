@@ -1,8 +1,11 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Yttrium.IisDeploy;
 
 namespace IisDeploy
@@ -16,8 +19,12 @@ namespace IisDeploy
 
 
         /// <summary />
-        [Option( "-v|--verbose", CommandOptionType.NoValue, Description = "Verbose output" )]
-        public bool Verbose { get; set; }
+        [Option( "-o|--output", CommandOptionType.SingleValue, Description = "Output filename, otherwise will write to console" )]
+        public string OutputFilename { get; set; }
+
+        /// <summary />
+        [Option( "--xml", CommandOptionType.NoValue, Description = "XML output" )]
+        public bool AsXml { get; set; }
 
 
         /// <summary />
@@ -33,12 +40,45 @@ namespace IisDeploy
         {
             var defn = await _deployer.Get();
 
-            var json = JsonSerializer.Serialize( defn, new JsonSerializerOptions()
-            {
-                WriteIndented = true,
-            } );
 
-            Console.WriteLine( json );
+            /*
+             * 
+             */
+            string output;
+
+            if ( this.AsXml == true )
+            {
+                var ser = new XmlSerializer( typeof( IisDefinition ) );
+                var sb = new StringBuilder();
+
+                using ( var xs = new StringWriter( sb ) )
+                {
+                    ser.Serialize( xs, defn );
+                }
+
+                output = sb.ToString();
+            }
+            else
+            {
+                output = JsonSerializer.Serialize( defn, new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                } );
+            }
+
+
+            /*
+             * 
+             */
+            if ( this.OutputFilename != null )
+            {
+                Console.WriteLine( "Write to {0}...", this.OutputFilename );
+                File.WriteAllText( this.OutputFilename, output );
+            }
+            else
+            {
+                Console.WriteLine( output );
+            }
 
             return 0;
         }

@@ -1,8 +1,8 @@
 /.nuget/
-/.vs/
 /build/
 /dist/
 
+.vs/
 bin/
 obj/
 *.csproj.user

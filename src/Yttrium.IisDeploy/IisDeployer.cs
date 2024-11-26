@@ -30,7 +30,7 @@ public partial class IisDeployer : IIisDeployer
          */
         _logger.LogDebug( "Ensure application pools" );
 
-        foreach ( var pd in definition.Pools )
+        foreach ( var pd in definition.ApplicationPools )
         {
             var p = mgr.ApplicationPools.SingleOrDefault( x => x.Name == pd.Name );
 
@@ -122,7 +122,6 @@ public partial class IisDeployer : IIisDeployer
                 }
 
                 app.VirtualDirectories[ "/" ].PhysicalPath = vdd.PhysicalPath;
-                app.ApplicationPoolName = vdd.ApplicationPoolName;
             }
         }
 
@@ -184,7 +183,7 @@ public partial class IisDeployer : IIisDeployer
             if ( pool.Name == "DefaultAppPool" )
                 continue;
 
-            if ( definition.Pools.Any( x => x.Name == pool.Name ) == true )
+            if ( definition.ApplicationPools.Any( x => x.Name == pool.Name ) == true )
                 continue;
 
             upool.Add( pool.Name, pool );

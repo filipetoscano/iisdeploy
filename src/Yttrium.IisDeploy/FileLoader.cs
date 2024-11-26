@@ -24,6 +24,7 @@ public class FileLoader : IFileLoader
         if ( obj == null )
             throw new InvalidOperationException( "Invalid configuration file, yielded null object." );
 
+
         /*
          * Resolve paths
          */
@@ -49,20 +50,51 @@ public class FileLoader : IFileLoader
 
 
         /*
-         * Resolve paths
+         * 
          */
         foreach ( var s in obj.Sites )
-        {
-            s.PhysicalPath = Path.Combine( obj.RootPhysicalPath, s.PhysicalPath );
-
-            if ( s.VirtualDirectories == null )
-                continue;
-
-            foreach ( var vd in s.VirtualDirectories )
-                vd.PhysicalPath = Path.Combine( obj.RootPhysicalPath, vd.PhysicalPath );
-        }
+            LoadWalk( obj, s );
 
         return obj;
+    }
+
+
+    /// <summary />
+    private static void LoadWalk( IisDefinition defn, ApplicationDefinition app )
+    {
+        if ( app.ApplicationPool != null )
+        {
+            if ( defn.ApplicationPools.Exists( x => x.Name == app.ApplicationPool.Name ) == false )
+            {
+                defn.ApplicationPools.Add( app.ApplicationPool );
+            }
+        }
+
+        app.PhysicalPath = Path.Combine( defn.RootPhysicalPath, app.PhysicalPath );
+
+
+        /*
+         * 
+         */
+        if ( app.Applications != null )
+        {
+            foreach ( var sapp in app.Applications )
+            {
+                LoadWalk( defn, sapp );
+            }
+        }
+
+
+        /*
+         * 
+         */
+        if ( app.VirtualDirectories != null )
+        {
+            foreach ( var vdir in app.VirtualDirectories )
+            {
+                vdir.PhysicalPath = Path.Combine( defn.RootPhysicalPath, vdir.PhysicalPath );
+            }
+        }
     }
 
 
