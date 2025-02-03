@@ -11,7 +11,6 @@ namespace IisDeploy
     public class DeployCommand : CommandBase
     {
         private readonly ILogger<DeployCommand> _logger;
-        private readonly IFileLoader _loader;
         private readonly IIisDeployer _deployer;
 
 
@@ -32,10 +31,9 @@ namespace IisDeploy
 
 
         /// <summary />
-        public DeployCommand( ILogger<DeployCommand> logger, IFileLoader loader, IIisDeployer deployer )
+        public DeployCommand( ILogger<DeployCommand> logger, IIisDeployer deployer )
         {
             _logger = logger;
-            _loader = loader;
             _deployer = deployer;
         }
 
@@ -46,8 +44,8 @@ namespace IisDeploy
             /*
              * 
              */
-            var definition = LoadDefinition( _loader, this.DefinitionFile );
-            var map = LoadMap( _loader, this.MapFile );
+            var definition = LoadDefinition( this.DefinitionFile );
+            var map = LoadMap( this.MapFile );
 
 
             /*

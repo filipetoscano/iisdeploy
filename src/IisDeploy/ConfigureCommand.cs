@@ -12,7 +12,6 @@ namespace IisDeploy
     public class ConfigureCommand : CommandBase
     {
         private readonly ILogger<ConfigureCommand> _logger;
-        private readonly IFileLoader _loader;
         private readonly IIisDeployer _deployer;
 
 
@@ -37,10 +36,9 @@ namespace IisDeploy
 
 
         /// <summary />
-        public ConfigureCommand( ILogger<ConfigureCommand> logger, IFileLoader loader, IIisDeployer deployer )
+        public ConfigureCommand( ILogger<ConfigureCommand> logger, IIisDeployer deployer )
         {
             _logger = logger;
-            _loader = loader;
             _deployer = deployer;
         }
 
@@ -51,8 +49,8 @@ namespace IisDeploy
             /*
              * 
              */
-            var definition = LoadDefinition( _loader, this.DefinitionFile );
-            var config = LoadMap( _loader, this.ConfigFile );
+            var definition = LoadDefinition( this.DefinitionFile );
+            var config = LoadMap( this.ConfigFile );
 
 
             /*

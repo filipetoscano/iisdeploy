@@ -1,6 +1,4 @@
-﻿using Yttrium.IisDeploy.Model;
-
-namespace Yttrium.IisDeploy;
+﻿namespace Yttrium.IisDeploy;
 
 /// <summary />
 public interface IIisDeployer
@@ -19,6 +17,14 @@ public interface IIisDeployer
 
     /// <summary />
     Task<DeploymentColor> ColorGet( string deploymentName );
+
+
+    /// <summary />
+    Task Normalize( DeploymentDefinition definition );
+
+
+    /// <summary />
+    Task Normalize( DeploymentMap map );
 
 
     /// <summary />

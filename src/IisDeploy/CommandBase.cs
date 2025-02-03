@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Yttrium.IisDeploy;
-using Yttrium.IisDeploy.Model;
 
 namespace IisDeploy
 {
@@ -9,7 +8,7 @@ namespace IisDeploy
     public abstract class CommandBase
     {
         /// <summary />
-        protected DeploymentDefinition LoadDefinition( IFileLoader loader, string fileName )
+        protected DeploymentDefinition LoadDefinition( string fileName )
         {
             using ( var stream = new FileStream( fileName, FileMode.Open ) )
             {
@@ -23,7 +22,7 @@ namespace IisDeploy
 
 
         /// <summary />
-        protected DeploymentMap LoadMap( IFileLoader loader, string fileName )
+        protected DeploymentMap LoadMap( string fileName )
         {
             DeploymentMap cfg;
 

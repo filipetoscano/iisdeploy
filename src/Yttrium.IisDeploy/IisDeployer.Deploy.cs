@@ -1,6 +1,5 @@
 ﻿using CliWrap;
 using Microsoft.Extensions.Logging;
-using Yttrium.IisDeploy.Model;
 
 namespace Yttrium.IisDeploy;
 

@@ -1,4 +1,4 @@
-﻿namespace Yttrium.IisDeploy.Model;
+﻿namespace Yttrium.IisDeploy;
 
 /// <summary />
 public class DeploymentMap
