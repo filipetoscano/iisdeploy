@@ -23,8 +23,8 @@ namespace IisDeploy
         public string OutputFilename { get; set; }
 
         /// <summary />
-        [Option( "--xml", CommandOptionType.NoValue, Description = "XML output" )]
-        public bool AsXml { get; set; }
+        [Option( "-f|--format", CommandOptionType.SingleValue, Description = "Output format" )]
+        public Format? OutputFormat { get; set; }
 
 
         /// <summary />
@@ -44,9 +44,21 @@ namespace IisDeploy
             /*
              * 
              */
+            if ( this.OutputFilename != null && this.OutputFormat == null )
+            {
+                if ( Path.GetExtension( this.OutputFilename ) == ".xml" )
+                    this.OutputFormat = Format.Xml;
+                else
+                    this.OutputFormat = Format.Json;
+            }
+
+
+            /*
+             * 
+             */
             string output;
 
-            if ( this.AsXml == true )
+            if ( this.OutputFormat == Format.Xml )
             {
                 var ser = new XmlSerializer( typeof( DeploymentDefinition ) );
                 var sb = new StringBuilder();

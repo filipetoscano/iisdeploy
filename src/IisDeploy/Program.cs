@@ -37,7 +37,6 @@ namespace IisDeploy
             var services = new ServiceCollection()
                 .AddLogging( builder => builder.AddSerilog( dispose: true ) )
                 .AddScoped<IIisDeployer, IisDeployer>()
-                .AddScoped<IFileLoader, JsonFileLoader>()
                 .BuildServiceProvider();
 
 
@@ -53,6 +52,12 @@ namespace IisDeploy
                     .UseConstructorInjection( services );
 
                 return app.Execute( args );
+            }
+            catch ( UnrecognizedCommandParsingException  ex )
+            {
+                logger.Error( "{Message}", ex.Message );
+
+                return 2;
             }
             catch ( Exception ex )
             {

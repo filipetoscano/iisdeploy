@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Web.Administration;
+using System.Net;
 
 namespace Yttrium.IisDeploy;
 
@@ -76,7 +77,12 @@ public partial class IisDeployer : IIisDeployer
             var s = mgr.Sites.SingleOrDefault( x => x.Name == sd.Name );
 
             if ( s == null )
-                s = mgr.Sites.Add( sd.Name, sd.PhysicalPath, sd.Bindings.First().Port );
+            {
+                var appd = sd.Applications.Single( x => x.PhysicalPath == ApplicationDefinition.RootPath );
+
+                _logger.LogInformation( "Site {SiteName}: Add", sd.Name );
+                s = mgr.Sites.Add( sd.Name, appd.PhysicalPath, sd.Bindings.First().Port );
+            }
 
 
             /*
@@ -92,38 +98,44 @@ public partial class IisDeployer : IIisDeployer
 
 
             /*
-             * Root application
+             * Applications
              */
-            var app = s.Applications[ "/" ];
-            app.VirtualDirectories[ "/" ].PhysicalPath = sd.PhysicalPath;
-            app.ApplicationPoolName = sd.ApplicationPoolName;
-        }
-
-
-        /*
-         * #3. Ensure virtual directories
-         */
-        _logger.LogDebug( "Ensure vdir apps" );
-
-        foreach ( var sd in definition.Sites )
-        {
-            if ( sd.VirtualDirectories == null )
-                continue;
-
-            var s = mgr.Sites.Single( x => x.Name == sd.Name );
-
-            foreach ( var vdd in sd.VirtualDirectories )
+            foreach ( var ad in sd.Applications )
             {
-                var app = s.Applications.SingleOrDefault( x => x.Path == vdd.Path );
+                var app = s.Applications[ ad.Path ];
 
                 if ( app == null )
                 {
-                    app = s.Applications.Add( vdd.Path, vdd.PhysicalPath );
+                    _logger.LogInformation( "App {SiteName}{AppPath}: Add", sd.Name, ad.Path );
+                    app = s.Applications.Add( ad.Path, ad.PhysicalPath );
                 }
 
-                app.VirtualDirectories[ "/" ].PhysicalPath = vdd.PhysicalPath;
+                app.VirtualDirectories[ "/" ].PhysicalPath = ad.PhysicalPath;
+                app.ApplicationPoolName = ad.ApplicationPoolName;
+
+
+                /*
+                 * Virtual directories
+                 */
+                if ( ad.VirtualDirectories == null )
+                    continue;
+
+                foreach ( var vd in ad.VirtualDirectories )
+                {
+                    var vdir = app.VirtualDirectories[ vd.Path ];
+
+                    if ( vdir == null )
+                    {
+                        _logger.LogInformation( "Vdir {SiteName}{AppPath}{VdirPath}: Add", sd.Name, ad.Path, vd.Path );
+                        vdir = app.VirtualDirectories.Add( vd.Path, vd.PhysicalPath );
+                    }
+
+                    vdir.PhysicalPath = vd.PhysicalPath;
+                }
             }
         }
+
+        mgr.CommitChanges();
 
 
         /*
@@ -150,7 +162,7 @@ public partial class IisDeployer : IIisDeployer
             {
                 foreach ( var s in usite )
                 {
-                    _logger.LogWarning( "Removing website {SiteName}", s.Key );
+                    _logger.LogWarning( "Site {SiteName}", s.Key );
                     mgr.Sites.Remove( s.Value );
                 }
             }

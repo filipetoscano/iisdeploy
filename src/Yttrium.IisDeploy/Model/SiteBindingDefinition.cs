@@ -1,5 +1,6 @@
 ﻿using Microsoft.Web.Administration;
 using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace Yttrium.IisDeploy;
 
@@ -8,19 +9,23 @@ public class SiteBindingDefinition
 {
     /// <summary />
     [JsonConverter( typeof( JsonStringEnumConverter ) )]
+    [XmlAttribute( "protocol")]
     public Protocol Protocol { get; set; }
 
     /// <summary />
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
+    [XmlAttribute( "host" )]
     public string? Host { get; set; }
 
     /// <summary>
     /// IP address, or null for any.
     /// </summary>
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
+    [XmlAttribute( "address" )]
     public string? Address { get; set; }
 
     /// <summary />
+    [XmlAttribute( "port" )]
     public int Port { get; set; }
 
 

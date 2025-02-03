@@ -37,7 +37,7 @@ public class SiteLimitsDefinition
         if ( this.MaxConnections != null )
             return false;
 
-        if ( this.ConnectionTimeout != null )
+        if ( this.ConnectionTimeout != 120 )
             return false;
 
         return true;

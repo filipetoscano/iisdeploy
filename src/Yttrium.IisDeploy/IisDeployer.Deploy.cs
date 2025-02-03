@@ -23,39 +23,32 @@ public partial class IisDeployer : IIisDeployer
          */
         foreach ( var s in definition.Sites )
         {
-            if ( config.Source.ContainsKey( s.Name ) == false )
-                throw new InvalidOperationException( $"No source for website '{s.Name}'" );
-
-            var from = config.Source[ s.Name ];
-            var to = s.PhysicalPath;
-
-            await FromTo( "Site", s.Name, from, to );
-
-
             /*
-             * TODO: Doesn't work with nested
+             * 
              */
-            if ( s.Applications != null )
+            if ( s.Applications == null )
+                continue;
+
+            foreach ( var app in s.Applications )
             {
-                foreach ( var a in s.Applications )
+                var appFrom = config.Source[ s.Name + app.Path ];
+                var appTo = app.PhysicalPath;
+
+                await FromTo( "App", app.Path, appFrom, appTo );
+
+
+                /*
+                 * 
+                 */
+                if ( app.VirtualDirectories == null )
+                    continue;
+
+                foreach ( var vdir in app.VirtualDirectories )
                 {
-                    var name = s.Name + a.Path;
-                    var f = config.Source[ s.Name ];
-                    var t = a.PhysicalPath;
+                    var vdirFrom = config.Source[ s.Name + app.Path + vdir ];
+                    var vdirTo = vdir.PhysicalPath;
 
-                    await FromTo( "App", name, f, t );
-                }
-            }
-
-            if ( s.VirtualDirectories != null )
-            {
-                foreach ( var v in s.VirtualDirectories )
-                {
-                    var name = s.Name + v.Path;
-                    var f = config.Source[ s.Name ];
-                    var t = v.PhysicalPath;
-
-                    await FromTo( "Vdir", name, f, t );
+                    await FromTo( "VirtualDirectory", app.Path + vdir, vdirFrom, vdirTo );
                 }
             }
         }

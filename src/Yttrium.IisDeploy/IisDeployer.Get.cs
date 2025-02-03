@@ -9,6 +9,8 @@ public partial class IisDeployer
     /// <inheritdoc />
     public async Task<DeploymentDefinition> Get()
     {
+        await Task.Yield();
+
         var mgr = new ServerManager();
         var defn = new DeploymentDefinition();
 
@@ -48,17 +50,17 @@ public partial class IisDeployer
         /*
          * Sites
          */
-        foreach ( var s in mgr.Sites )
+        foreach ( var site in mgr.Sites )
         {
             var sd = new SiteDefinition();
-            sd.Name = s.Name;
-            sd.AutoStart = s.ServerAutoStart;
+            sd.Name = site.Name;
+            sd.AutoStart = site.ServerAutoStart;
 
             defn.Sites.Add( sd );
 
 
             // Site bindings
-            foreach ( var b in s.Bindings )
+            foreach ( var b in site.Bindings )
             {
                 var bd = new SiteBindingDefinition();
                 bd.Protocol = ToProtocol( b.Protocol );
@@ -75,16 +77,16 @@ public partial class IisDeployer
             // Site limits
             var ld = new SiteLimitsDefinition();
 
-            ld.MaxUrlSegments = s.Limits.MaxUrlSegments;
+            ld.MaxUrlSegments = site.Limits.MaxUrlSegments;
 
-            if ( s.Limits.MaxBandwidth != SiteLimitsDefinition.MaxValue )
-                ld.MaxBandwidthBytes = s.Limits.MaxBandwidth;
+            if ( site.Limits.MaxBandwidth != SiteLimitsDefinition.MaxValue )
+                ld.MaxBandwidthBytes = site.Limits.MaxBandwidth;
 
-            if ( s.Limits.MaxConnections != SiteLimitsDefinition.MaxValue )
-                ld.MaxConnections = s.Limits.MaxConnections;
+            if ( site.Limits.MaxConnections != SiteLimitsDefinition.MaxValue )
+                ld.MaxConnections = site.Limits.MaxConnections;
 
-            if ( s.Limits.ConnectionTimeout.TotalSeconds > 0 )
-                ld.ConnectionTimeout = (long) s.Limits.ConnectionTimeout.TotalSeconds;
+            if ( site.Limits.ConnectionTimeout.TotalSeconds > 0 )
+                ld.ConnectionTimeout = (long) site.Limits.ConnectionTimeout.TotalSeconds;
 
             if ( ld.HasDefaultValues() == false )
                 sd.Limits = ld;
@@ -93,25 +95,15 @@ public partial class IisDeployer
             /*
              * 
              */
-            var sa = s.Applications.Single( x => x.Path == "/" );
-            Fill( sd, sa );
-
-
-            /*
-             * 
-             */
-            foreach ( var a in s.Applications )
+            foreach ( var app in site.Applications )
             {
-                if ( a.Path == "/" )
-                    continue;
-
                 if ( sd.Applications == null )
                     sd.Applications = new List<ApplicationDefinition>();
 
-                var suba = new ApplicationDefinition();
-                sd.Applications.Add( suba );
+                var ad = new ApplicationDefinition();
+                sd.Applications.Add( ad );
 
-                Fill( suba, a );
+                Fill( ad, app );
             }
         }
 

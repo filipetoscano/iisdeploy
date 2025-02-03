@@ -51,12 +51,12 @@ namespace IisDeploy
             /*
              *
              */
-            IisColor? next = null;
+            DeploymentColor? next = null;
 
             if ( this.BlueGreen == true )
             {
                 var color = await _deployer.ColorGet();
-                next = color == IisColor.Blue ? IisColor.Green : IisColor.Green;
+                next = color == DeploymentColor.Blue ? DeploymentColor.Green : DeploymentColor.Blue;
             }
 
 

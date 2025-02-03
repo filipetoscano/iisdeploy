@@ -31,7 +31,7 @@ namespace IisDeploy
         public async Task<int> OnExecuteAsync()
         {
             var curr = await _deployer.ColorGet();
-            var next = curr == IisColor.Blue ? IisColor.Green : IisColor.Blue;
+            var next = curr == DeploymentColor.Blue ? DeploymentColor.Green : DeploymentColor.Blue;
 
             if ( this.AsJson == true )
             {
