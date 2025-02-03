@@ -1,10 +1,10 @@
-﻿namespace Yttrium.IisDeploy;
+﻿namespace Yttrium.IisDeploy.Model;
 
 /// <summary />
-public class DeploymentConfig
+public class DeploymentMap
 {
     /// <summary>
-    /// Root folder for application source folders.
+    /// Root folder for application/vdir source folders.
     /// </summary>
     /// <remarks>
     /// If unspecified, all of the values in 'Source' must be absolute paths.
@@ -13,7 +13,7 @@ public class DeploymentConfig
     public string? RootSource { get; set; }
 
     /// <summary>
-    /// Application source folders.
+    /// Application/vdirs source folders, relative to root source.
     /// </summary>
     public Dictionary<string, string> Source { get; set; } = new Dictionary<string, string>();
 }

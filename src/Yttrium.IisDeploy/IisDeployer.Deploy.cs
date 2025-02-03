@@ -1,5 +1,7 @@
 ﻿using CliWrap;
 using Microsoft.Extensions.Logging;
+using Yttrium.IisDeploy.Model;
+
 namespace Yttrium.IisDeploy;
 
 /// <summary />
@@ -9,7 +11,7 @@ public partial class IisDeployer : IIisDeployer
 
 
     /// <inheritdoc />
-    public async Task Deploy( DeploymentDefinition definition, DeploymentConfig config )
+    public async Task Deploy( DeploymentDefinition definition, DeploymentMap config )
     {
         /*
          * 

@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 namespace Yttrium.IisDeploy;
 
 /// <summary />
+[XmlRoot( "deployment" )]
 public class DeploymentDefinition
 {
     /// <summary />
@@ -17,12 +18,12 @@ public class DeploymentDefinition
     public string? RootPhysicalPath { get; set; }
 
     /// <summary />
-    [XmlElement( "sites" )]
+    [XmlArray( "sites" )]
     [XmlArrayItem( "site" )]
     public List<SiteDefinition> Sites { get; set; } = new List<SiteDefinition>();
 
     /// <summary />
-    [XmlElement( "applicationPools" )]
+    [XmlArray( "applicationPools" )]
     [XmlArrayItem( "applicationPool" )]
     public List<ApplicationPoolDefinition> ApplicationPools { get; set; } = new List<ApplicationPoolDefinition>();
 }

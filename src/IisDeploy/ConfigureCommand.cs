@@ -49,29 +49,24 @@ namespace IisDeploy
         public async Task<int> OnExecuteAsync()
         {
             /*
+             * 
+             */
+            var definition = LoadDefinition( _loader, this.DefinitionFile );
+            var config = LoadMap( _loader, this.ConfigFile );
+
+
+            /*
              *
              */
             DeploymentColor? next = null;
 
             if ( this.BlueGreen == true )
             {
-                var color = await _deployer.ColorGet();
+                var color = await _deployer.ColorGet( definition.Name );
                 next = color == DeploymentColor.Blue ? DeploymentColor.Green : DeploymentColor.Green;
+
+                await _deployer.Mutate( definition, next.Value );
             }
-
-
-            /*
-             * 
-             */
-            var definition = LoadDefinition( _loader, this.DefinitionFile );
-            var config = LoadConfiguration( _loader, this.ConfigFile );
-
-
-            /*
-             * 
-             */
-            if ( next.HasValue == true )
-                MutateDefinition( definition, next.Value );
 
 
             /*
@@ -93,10 +88,9 @@ namespace IisDeploy
             /*
              * 
              */
-            await _deployer.Configure( definition );
-
-            if ( next.HasValue == true )
-                await _deployer.ColorSet( next.Value );
+            await _deployer.Apply( definition, new DefinitionApplyOptions()
+            {
+            } );
 
             return 0;
         }

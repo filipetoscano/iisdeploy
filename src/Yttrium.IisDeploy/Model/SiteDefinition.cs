@@ -17,7 +17,7 @@ public class SiteDefinition
     public bool AutoStart { get; set; }
 
     /// <summary />
-    [XmlElement( "bindings" )]
+    [XmlArray( "bindings" )]
     [XmlArrayItem( "binding" )]
     public List<SiteBindingDefinition> Bindings { get; set; } = new List<SiteBindingDefinition>();
 
@@ -27,7 +27,7 @@ public class SiteDefinition
     public SiteLimitsDefinition? Limits { get; set; }
 
     /// <summary />
-    [XmlElement( "applications" )]
+    [XmlArray( "applications" )]
     [XmlArrayItem( "application" )]
     public List<ApplicationDefinition> Applications { get; set; } = new List<ApplicationDefinition>();
 }

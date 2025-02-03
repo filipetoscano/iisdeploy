@@ -1,4 +1,6 @@
-﻿namespace Yttrium.IisDeploy;
+﻿using Yttrium.IisDeploy.Model;
+
+namespace Yttrium.IisDeploy;
 
 /// <summary />
 public interface IIisDeployer
@@ -9,18 +11,18 @@ public interface IIisDeployer
     /// <param name="definition">
     /// Definition of IIS websites and virtual directories.
     /// </param>
-    /// <param name="config">
-    /// Deployment configuration settings.
+    /// <param name="map">
+    /// Deployment map.
     /// </param>
-    Task Deploy( DeploymentDefinition definition, DeploymentConfig config );
+    Task Deploy( DeploymentDefinition definition, DeploymentMap map );
 
 
     /// <summary />
-    Task<DeploymentColor> ColorGet();
+    Task<DeploymentColor> ColorGet( string deploymentName );
 
 
     /// <summary />
-    Task ColorSet( DeploymentColor color );
+    Task Mutate( DeploymentDefinition definition, DeploymentColor color );
 
 
     /// <summary>
@@ -38,5 +40,8 @@ public interface IIisDeployer
     /// <param name="definition">
     /// Definition of IIS websites and virtual directories.
     /// </param>
-    Task Configure( DeploymentDefinition definition );
+    /// <param name="options">
+    /// Options when applying the definition.
+    /// </param>
+    Task Apply( DeploymentDefinition definition, DefinitionApplyOptions options );
 }

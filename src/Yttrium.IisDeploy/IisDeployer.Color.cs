@@ -3,11 +3,13 @@
 public partial class IisDeployer
 {
     /// <inheritdoc />
-    public async Task<DeploymentColor> ColorGet()
+    public async Task<DeploymentColor> ColorGet( string deploymentName )
     {
         await Task.Yield();
 
-        if ( File.Exists( "env.txt" ) == false )
+        var filename = $"deploy-{deploymentName}.txt";
+
+        if ( File.Exists( filename ) == false )
             return DeploymentColor.Green;
 
         var text = File.ReadAllText( "env.txt" );
@@ -15,14 +17,5 @@ public partial class IisDeployer
         DeploymentColor color = (DeploymentColor) Enum.Parse( typeof( DeploymentColor ), text );
 
         return color;
-    }
-
-
-    /// <inheritdoc />
-    public async Task ColorSet( DeploymentColor color )
-    {
-        await Task.Yield();
-
-        File.WriteAllText( "env.txt", color.ToString() );
     }
 }

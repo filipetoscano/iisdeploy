@@ -1,4 +1,6 @@
-﻿namespace Yttrium.IisDeploy;
+﻿using Yttrium.IisDeploy.Model;
+
+namespace Yttrium.IisDeploy;
 
 /// <summary />
 public interface IFileLoader
@@ -7,5 +9,5 @@ public interface IFileLoader
     DeploymentDefinition LoadDefinition( Stream stream );
 
     /// <summary />
-    DeploymentConfig LoadMap( Stream stream );
+    DeploymentMap LoadMap( Stream stream );
 }

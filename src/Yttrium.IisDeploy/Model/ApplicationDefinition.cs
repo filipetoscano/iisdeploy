@@ -48,7 +48,7 @@ public class ApplicationDefinition
     /// Virtual directories will inherit the execution context of the application.
     /// </remarks>
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    [XmlElement( "virtualDirectories" )]
+    [XmlArray( "virtualDirectories" )]
     [XmlArrayItem( "virtualDirectory" )]
     public List<VirtualDirectoryDefinition>? VirtualDirectories { get; set; }
 }

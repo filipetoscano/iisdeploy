@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using Yttrium.IisDeploy.Model;
 
 namespace Yttrium.IisDeploy;
 
@@ -17,9 +18,9 @@ public class JsonFileLoader : IFileLoader
 
 
     /// <inheritdoc />
-    public DeploymentConfig LoadMap( Stream stream )
+    public DeploymentMap LoadMap( Stream stream )
     {
-        var obj = JsonSerializer.Deserialize<DeploymentConfig>( stream );
+        var obj = JsonSerializer.Deserialize<DeploymentMap>( stream );
 
         if ( obj == null )
             throw new InvalidOperationException( "Invalid configuration file, yielded null object." );

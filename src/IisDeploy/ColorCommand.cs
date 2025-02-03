@@ -1,6 +1,7 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Yttrium.IisDeploy;
@@ -15,6 +16,12 @@ namespace IisDeploy
         private readonly IIisDeployer _deployer;
 
 
+        /// <summary />
+        [Argument( 0, Description = "Name of deployment" )]
+        [Required]
+        public string DeploymentName { get; set; }
+
+        /// <summary />
         [Option( "--json", CommandOptionType.NoValue, Description = "Output as JSON object" )]
         public bool AsJson { get; set; } = false;
 
@@ -30,7 +37,7 @@ namespace IisDeploy
         /// <summary />
         public async Task<int> OnExecuteAsync()
         {
-            var curr = await _deployer.ColorGet();
+            var curr = await _deployer.ColorGet( this.DeploymentName );
             var next = curr == DeploymentColor.Blue ? DeploymentColor.Green : DeploymentColor.Blue;
 
             if ( this.AsJson == true )

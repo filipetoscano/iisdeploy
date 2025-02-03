@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Yttrium.IisDeploy;
+using Yttrium.IisDeploy.Model;
 
 namespace IisDeploy
 {
@@ -22,9 +23,9 @@ namespace IisDeploy
 
 
         /// <summary />
-        protected DeploymentConfig LoadConfiguration( IFileLoader loader, string fileName )
+        protected DeploymentMap LoadMap( IFileLoader loader, string fileName )
         {
-            DeploymentConfig cfg;
+            DeploymentMap cfg;
 
             using ( var stream = new FileStream( fileName, FileMode.Open ) )
             {
@@ -37,26 +38,6 @@ namespace IisDeploy
             }
 
             return cfg;
-        }
-
-
-        /// <summary />
-        protected void MutateDefinition( DeploymentDefinition definition, DeploymentColor next )
-        {
-            throw new NotImplementedException();
-
-            //var nextDir = next.ToString();
-
-            //foreach ( var s in definition.Sites )
-            //{
-            //    s.PhysicalPath = Path.Combine( s.PhysicalPath, nextDir );
-
-            //    if ( s.VirtualDirectories == null )
-            //        continue;
-
-            //    foreach ( var vd in s.VirtualDirectories )
-            //        vd.PhysicalPath = Path.Combine( vd.PhysicalPath, nextDir );
-            //}
         }
     }
 }
