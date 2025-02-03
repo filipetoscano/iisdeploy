@@ -7,7 +7,7 @@ namespace IisDeploy
     public abstract class CommandBase
     {
         /// <summary />
-        protected IisDefinition LoadDefinition( IFileLoader loader, string fileName )
+        protected DeploymentDefinition LoadDefinition( IFileLoader loader, string fileName )
         {
             using ( var stream = new FileStream( fileName, FileMode.Open ) )
             {
@@ -37,7 +37,7 @@ namespace IisDeploy
 
 
         /// <summary />
-        protected void MutateDefinition( IisDefinition definition, IisColor next )
+        protected void MutateDefinition( DeploymentDefinition definition, IisColor next )
         {
             var nextDir = next.ToString();
 

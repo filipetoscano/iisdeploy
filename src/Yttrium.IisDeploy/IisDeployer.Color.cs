@@ -1,36 +1,28 @@
-﻿using Microsoft.Web.Administration;
-
-namespace Yttrium.IisDeploy;
+﻿namespace Yttrium.IisDeploy;
 
 public partial class IisDeployer
 {
     /// <inheritdoc />
-    public async Task<IisColor> ColorGet()
+    public async Task<DeploymentColor> ColorGet()
     {
         await Task.Yield();
 
-        var mgr = new ServerManager();
+        if ( File.Exists( "env.txt" ) == false )
+            return DeploymentColor.Green;
 
-        string? meta = (string?) mgr.GetMetadata( "env:color" );
+        var text = File.ReadAllText( "env.txt" );
 
-        if ( meta == null )
-            return IisColor.Blue;
-
-        var color = (IisColor) Enum.Parse( typeof( IisColor ), meta );
+        DeploymentColor color = (DeploymentColor) Enum.Parse( typeof( DeploymentColor ), text );
 
         return color;
     }
 
 
     /// <inheritdoc />
-    public async Task ColorSet( IisColor color )
+    public async Task ColorSet( DeploymentColor color )
     {
         await Task.Yield();
 
-        var mgr = new ServerManager();
-
-        var value = color.ToString();
-
-        mgr.SetMetadata( "env:color", value );
+        File.WriteAllText( "env.txt", color.ToString() );
     }
 }

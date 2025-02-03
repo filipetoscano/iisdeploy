@@ -48,7 +48,7 @@ namespace IisDeploy
 
             if ( this.AsXml == true )
             {
-                var ser = new XmlSerializer( typeof( IisDefinition ) );
+                var ser = new XmlSerializer( typeof( DeploymentDefinition ) );
                 var sb = new StringBuilder();
 
                 using ( var xs = new StringWriter( sb ) )

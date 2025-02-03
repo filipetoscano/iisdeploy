@@ -17,7 +17,7 @@ public partial class IisDeployer : IIisDeployer
 
 
     /// <summary />
-    public Task Configure( IisDefinition definition )
+    public Task Configure( DeploymentDefinition definition )
     {
         /*
          * 
@@ -56,7 +56,7 @@ public partial class IisDeployer : IIisDeployer
             }
             else
             {
-                p.ProcessModel.UserName = null;
+                p.ProcessModel.UserName = "";
                 p.ProcessModel.Password = null;
             }
         }

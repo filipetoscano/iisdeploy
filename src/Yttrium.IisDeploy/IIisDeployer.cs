@@ -12,15 +12,15 @@ public interface IIisDeployer
     /// <param name="config">
     /// Deployment configuration settings.
     /// </param>
-    Task Deploy( IisDefinition definition, DeploymentConfig config );
+    Task Deploy( DeploymentDefinition definition, DeploymentConfig config );
 
 
     /// <summary />
-    Task<IisColor> ColorGet();
+    Task<DeploymentColor> ColorGet();
 
 
     /// <summary />
-    Task ColorSet( IisColor color );
+    Task ColorSet( DeploymentColor color );
 
 
     /// <summary>
@@ -29,7 +29,7 @@ public interface IIisDeployer
     /// <returns>
     /// Entire IIS definition.
     /// </returns>
-    Task<IisDefinition> Get();
+    Task<DeploymentDefinition> Get();
 
 
     /// <summary>
@@ -38,5 +38,5 @@ public interface IIisDeployer
     /// <param name="definition">
     /// Definition of IIS websites and virtual directories.
     /// </param>
-    Task Configure( IisDefinition definition );
+    Task Configure( DeploymentDefinition definition );
 }

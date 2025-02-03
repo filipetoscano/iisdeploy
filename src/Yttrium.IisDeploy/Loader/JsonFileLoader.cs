@@ -4,20 +4,20 @@ using System.Text.Json;
 namespace Yttrium.IisDeploy;
 
 /// <summary />
-public class FileLoader : IFileLoader
+public class JsonFileLoader : IFileLoader
 {
-    private readonly ILogger<FileLoader> _logger;
+    private readonly ILogger<JsonFileLoader> _logger;
 
 
     /// <summary />
-    public FileLoader( ILogger<FileLoader> logger )
+    public JsonFileLoader( ILogger<JsonFileLoader> logger )
     {
         _logger = logger;
     }
 
 
     /// <inheritdoc />
-    public DeploymentConfig LoadConfigJson( Stream stream )
+    public DeploymentConfig LoadMap( Stream stream )
     {
         var obj = JsonSerializer.Deserialize<DeploymentConfig>( stream );
 
@@ -41,26 +41,28 @@ public class FileLoader : IFileLoader
 
 
     /// <inheritdoc />
-    public IisDefinition LoadDefinitionJson( Stream stream )
+    public DeploymentDefinition LoadDefinition( Stream stream )
     {
-        var obj = JsonSerializer.Deserialize<IisDefinition>( stream );
+        var obj = JsonSerializer.Deserialize<DeploymentDefinition>( stream );
 
         if ( obj == null )
             throw new InvalidOperationException( "Invalid configuration file, yielded null object." );
-
 
         /*
          * 
          */
         foreach ( var s in obj.Sites )
-            LoadWalk( obj, s );
+        {
+            foreach ( var app in s.Applications )
+                LoadWalk( obj, app );
+        }
 
         return obj;
     }
 
 
     /// <summary />
-    private static void LoadWalk( IisDefinition defn, ApplicationDefinition app )
+    private static void LoadWalk( DeploymentDefinition defn, ApplicationDefinition app )
     {
         if ( app.ApplicationPool != null )
         {
@@ -70,44 +72,14 @@ public class FileLoader : IFileLoader
             }
         }
 
-        app.PhysicalPath = Path.Combine( defn.RootPhysicalPath, app.PhysicalPath );
+        app.PhysicalPath = Path.Combine( defn.RootPhysicalPath ?? ".", app.PhysicalPath );
 
-
-        /*
-         * 
-         */
-        if ( app.Applications != null )
-        {
-            foreach ( var sapp in app.Applications )
-            {
-                LoadWalk( defn, sapp );
-            }
-        }
-
-
-        /*
-         * 
-         */
         if ( app.VirtualDirectories != null )
         {
             foreach ( var vdir in app.VirtualDirectories )
             {
-                vdir.PhysicalPath = Path.Combine( defn.RootPhysicalPath, vdir.PhysicalPath );
+                vdir.PhysicalPath = Path.Combine( defn.RootPhysicalPath ?? ".", vdir.PhysicalPath );
             }
         }
-    }
-
-
-    /// <inheritdoc />
-    public DeploymentConfig LoadConfigXml( Stream stream )
-    {
-        throw new NotImplementedException();
-    }
-
-
-    /// <inheritdoc />
-    public IisDefinition LoadDefinitionXml( Stream stream )
-    {
-        throw new NotImplementedException();
     }
 }

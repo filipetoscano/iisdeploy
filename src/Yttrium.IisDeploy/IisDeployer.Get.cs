@@ -7,10 +7,10 @@ namespace Yttrium.IisDeploy;
 public partial class IisDeployer
 {
     /// <inheritdoc />
-    public async Task<IisDefinition> Get()
+    public async Task<DeploymentDefinition> Get()
     {
         var mgr = new ServerManager();
-        var defn = new IisDefinition();
+        var defn = new DeploymentDefinition();
 
 
         /*

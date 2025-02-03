@@ -37,7 +37,7 @@ namespace IisDeploy
             var services = new ServiceCollection()
                 .AddLogging( builder => builder.AddSerilog( dispose: true ) )
                 .AddScoped<IIisDeployer, IisDeployer>()
-                .AddScoped<IFileLoader, FileLoader>()
+                .AddScoped<IFileLoader, JsonFileLoader>()
                 .BuildServiceProvider();
 
 

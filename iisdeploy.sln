@@ -9,13 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{DA7237
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{F0144B42-C06A-4397-A6E4-E75F1A1FC0E6}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{926E6B15-2004-46CC-B704-7FDB0E755705}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5D754FB9-1914-41EC-B468-6946D96C3D81}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{CAC9B80A-B362-4135-AC30-8013D0DB6124}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yttrium.IisDeploy", "src\Yttrium.IisDeploy\Yttrium.IisDeploy.csproj", "{477C33A5-87F1-4198-82F3-44D995B32B4E}"
 EndProject

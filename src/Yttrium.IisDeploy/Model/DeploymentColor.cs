@@ -1,7 +1,7 @@
 ﻿namespace Yttrium.IisDeploy;
 
 /// <summary />
-public enum IisColor
+public enum DeploymentColor
 {
     /// <summary>
     /// Blue environment.
