@@ -119,7 +119,7 @@ public partial class IisDeployer
 
             foreach ( var b in remv )
             {
-                _logger.LogWarning( "Site {SiteName}: Remove {Protocol}|{Binding} binding", sd.Name,b.Protocol, b.BindingInformation );
+                _logger.LogWarning( "Site {SiteName}: Remove {Protocol}|{Binding} binding", sd.Name, b.Protocol, b.BindingInformation );
                 s.Bindings.Remove( b );
             }
 
@@ -133,7 +133,7 @@ public partial class IisDeployer
 
                 if ( app == null )
                 {
-                    _logger.LogInformation( "App {SiteName}{AppPath}: Add", sd.Name, ad.Path );
+                    _logger.LogInformation( "App {SiteName}|{AppPath}: Add", sd.Name, ad.Path );
                     app = s.Applications.Add( ad.Path, ad.PhysicalPath );
                 }
 
@@ -153,7 +153,7 @@ public partial class IisDeployer
 
                     if ( vdir == null )
                     {
-                        _logger.LogInformation( "Vdir {SiteName}{AppPath}{VdirPath}: Add", sd.Name, ad.Path, vd.Path );
+                        _logger.LogInformation( "Vdir {SiteName}|{AppPath}|{VdirPath}: Add", sd.Name, ad.Path, vd.Path );
                         vdir = app.VirtualDirectories.Add( vd.Path, vd.PhysicalPath );
                     }
 
@@ -212,10 +212,7 @@ public partial class IisDeployer
 
             foreach ( var app in site.Applications )
             {
-                // Root app belongs to the site. No need to check :)
-                if ( app.Path == "/" )
-                    continue;
-
+                // Removing an unmanaged app will remoe any vdir underneath
                 var ad = sd.Applications.SingleOrDefault( x => x.Path == app.Path );
 
                 if ( ad == null )
@@ -247,7 +244,7 @@ public partial class IisDeployer
                 {
                     foreach ( var v in uvdir )
                     {
-                        _logger.LogWarning( "Vdir {SiteName}{AppPath}{VdirPath}: Removing", site.Name, app.Path, v.Value.Path );
+                        _logger.LogWarning( "Vdir {SiteName}|{AppPath}|{VdirPath}: Removing", site.Name, app.Path, v.Value.Path );
                         app.VirtualDirectories.Remove( v.Value );
                     }
                 }
@@ -258,7 +255,7 @@ public partial class IisDeployer
             {
                 foreach ( var a in uapp )
                 {
-                    _logger.LogWarning( "Vdir {SiteName}{AppPath}: Removing", site.Name, a.Value.Path );
+                    _logger.LogWarning( "App {SiteName}|{AppPath}: Removing", site.Name, a.Value.Path );
                     site.Applications.Remove( a.Value );
                 }
             }
