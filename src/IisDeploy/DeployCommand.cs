@@ -21,7 +21,7 @@ namespace IisKnife
         public string DefinitionFile { get; set; }
 
         /// <summary />
-        [Option( "-m|--map", CommandOptionType.SingleValue, Description = "Source map file (XML/JSON)" )]
+        [Argument( 1, Description = "Source map file (XML/JSON)" )]
         [FileExists]
         [Required]
         public string MapFile { get; set; }
