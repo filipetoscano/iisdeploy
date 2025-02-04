@@ -15,14 +15,7 @@ namespace IisKnife
 
             using ( var stream = new FileStream( fileName, FileMode.Open ) )
             {
-                if ( Path.GetExtension( fileName ) == ".xml" )
-                {
-                    throw new NotImplementedException();
-                }
-                else
-                {
-                    obj = JsonSerializer.Deserialize<DeploymentDefinition>( stream );
-                }
+                obj = JsonSerializer.Deserialize<DeploymentDefinition>( stream );
             }
 
             return obj;
@@ -36,14 +29,7 @@ namespace IisKnife
 
             using ( var stream = new FileStream( fileName, FileMode.Open ) )
             {
-                if ( Path.GetExtension( fileName ) == ".xml" )
-                {
-                    throw new NotImplementedException();
-                }
-                else
-                {
-                    obj = JsonSerializer.Deserialize<DeploymentMap>( stream );
-                }
+                obj = JsonSerializer.Deserialize<DeploymentMap>( stream );
             }
 
             return obj;

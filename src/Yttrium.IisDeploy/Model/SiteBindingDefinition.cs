@@ -1,47 +1,47 @@
 ﻿using Microsoft.Web.Administration;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 
 namespace Yttrium.IisDeploy;
 
 /// <summary />
 public class SiteBindingDefinition
 {
-    /// <summary />
-    [XmlAttribute( "protocol" )]
+    /// <summary>
+    /// Protocol.
+    /// </summary>
     public Protocol Protocol { get; set; }
 
-    /// <summary />
+    /// <summary>
+    /// Host name, or null for any.
+    /// </summary>
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    [XmlAttribute( "host" )]
     public string? Host { get; set; }
 
     /// <summary>
     /// IP address, or null for any.
     /// </summary>
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    [XmlAttribute( "address" )]
     public string? Address { get; set; }
 
-    /// <summary />
-    [XmlAttribute( "port" )]
+    /// <summary>
+    /// TCP port.
+    /// </summary>
     public int Port { get; set; }
 
-    /// <summary />
+    /// <summary>
+    /// Certificate location (Windows store name).
+    /// </summary>
+    [JsonConverter( typeof( JsonStringEnumConverter ) )]
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    [XmlAttribute( "store" )]
     public StoreName? CertificateStore { get; set; }
 
     /// <summary />
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    [XmlAttribute( "hash" )]
     public string? CertificateHash { get; set; }
 
     /// <summary />
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    [XmlAttribute( "sslFlags" )]
     public BindingSslFlags? SslFlags { get; set; }
 
 
@@ -79,7 +79,7 @@ public class SiteBindingDefinition
         else
         {
             b.CertificateStoreName = CertificateStore?.ToString();
-            b.CertificateHash = CertificateHash == null ? null : Encoding.ASCII.GetBytes( CertificateHash!.ToUpperInvariant() );
+            b.CertificateHash = CertificateHash == null ? null : U.ConvertCertificateHexStringToBytes( CertificateHash!.ToUpperInvariant() );
             b.SslFlags = (SslFlags) (int) ( SslFlags ?? BindingSslFlags.None );
         }
 

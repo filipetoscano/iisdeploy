@@ -1,35 +1,36 @@
 ﻿using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 
 namespace Yttrium.IisDeploy;
 
 /// <summary />
-[XmlRoot( "deployment" )]
 public class DeploymentDefinition
 {
-    /// <summary />
+    /// <summary>
+    /// Name of the deployment (bundle).
+    /// </summary>
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    [XmlAttribute( "name" )]
     public string? Name { get; set; }
 
-    /// <summary />
-    [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    [XmlAttribute( "hasBlueGreen" )]
-    public bool? HasBlueGreen { get; set; }
+    /// <summary>
+    /// Whether the deployment has alternating blue/green variants.
+    /// </summary>
+    [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingDefault )]
+    public bool? HasBlueGreen { get; set; } = false;
 
-    /// <summary />
+    /// <summary>
+    /// Physical path from which all app/vdir paths shall be derived.
+    /// </summary>
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    [XmlElement( "rootPhysicalPath" )]
     public string? RootPhysicalPath { get; set; }
 
 
-    /// <summary />
-    [XmlArray( "sites" )]
-    [XmlArrayItem( "site" )]
+    /// <summary>
+    /// List of sites.
+    /// </summary>
     public List<SiteDefinition> Sites { get; set; } = new List<SiteDefinition>();
 
-    /// <summary />
-    [XmlArray( "applicationPools" )]
-    [XmlArrayItem( "applicationPool" )]
+    /// <summary>
+    /// List of application pools.
+    /// </summary>
     public List<ApplicationPoolDefinition> ApplicationPools { get; set; } = new List<ApplicationPoolDefinition>();
 }

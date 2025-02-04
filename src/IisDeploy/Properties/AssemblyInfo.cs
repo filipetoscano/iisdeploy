@@ -2,11 +2,11 @@
 using System.Runtime.InteropServices;
 
 // General information
-[assembly: AssemblyTitle( "IisDeploy" )]
+[assembly: AssemblyTitle( "IisKnife" )]
 [assembly: AssemblyDescription( "" )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "" )]
-[assembly: AssemblyProduct( "IisDeploy" )]
+[assembly: AssemblyCompany( "Filipe Toscano" )]
+[assembly: AssemblyProduct( "IisKnife" )]
 [assembly: AssemblyCopyright( "Copyright © Filipe Toscano 2023" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]

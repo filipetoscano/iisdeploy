@@ -16,7 +16,7 @@ namespace IisKnife
 
 
         /// <summary />
-        [Argument( 0, Description = "Definition file (XML/JSON)" )]
+        [Argument( 0, Description = "Definition file" )]
         [FileExists]
         [Required]
         public string DefinitionFile { get; set; }

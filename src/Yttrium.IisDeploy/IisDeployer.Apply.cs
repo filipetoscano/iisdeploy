@@ -26,7 +26,7 @@ public partial class IisDeployer
         /*
          * 
          */
-        var mgr = new ServerManager();
+        using var mgr = new ServerManager();
 
 
         /*
@@ -49,6 +49,10 @@ public partial class IisDeployer
              * 
              */
             p.AutoStart = pd.AutoStart;
+            p.StartMode = pd.StartMode ?? ApplicationPoolDefaults.StartMode;
+            p.QueueLength = pd.QueueLength ?? ApplicationPoolDefaults.QueueLength;
+            p.ManagedPipelineMode = pd.ManagedPipelineMode;
+            p.ManagedRuntimeVersion = pd.ManagedRuntimeVersion;
 
 
             /*

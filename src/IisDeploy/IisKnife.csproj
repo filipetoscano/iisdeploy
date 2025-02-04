@@ -68,7 +68,6 @@
     <Compile Include="ApplyCommand.cs" />
     <Compile Include="GetCommand.cs" />
     <Compile Include="DeployCommand.cs" />
-    <Compile Include="Format.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StateCommand.cs" />

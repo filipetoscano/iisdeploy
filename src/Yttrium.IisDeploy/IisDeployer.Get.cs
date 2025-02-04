@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Web.Administration;
+﻿using Microsoft.Web.Administration;
 using System.Net;
 
 namespace Yttrium.IisDeploy;
@@ -11,7 +10,7 @@ public partial class IisDeployer
     {
         await Task.Yield();
 
-        var mgr = new ServerManager();
+        using var mgr = new ServerManager();
         var defn = new DeploymentDefinition();
 
 
@@ -20,28 +19,7 @@ public partial class IisDeployer
          */
         foreach ( var ap in mgr.ApplicationPools )
         {
-            // Process Model
-            var pmd = new ProcessModelDefinition();
-            pmd.IdentityType = ap.ProcessModel.IdentityType;
-            pmd.UserName = Nullify( ap.ProcessModel.UserName );
-
-            // Recycling
-            //_logger.LogDebug( "DisallowOverlappingRotation = {DisallowOverlappingRotation}", ap.Recycling.DisallowOverlappingRotation );
-            //_logger.LogDebug( "PeriodicRestart.Time = {PeriodicRestart}", ap.Recycling.PeriodicRestart.Time );
-            //_logger.LogDebug( "PeriodicRestart.Requests = {Requests}", ap.Recycling.PeriodicRestart.Requests );
-            //_logger.LogDebug( "PeriodicRestart.Memory = {Memory}", ap.Recycling.PeriodicRestart.Memory );
-            //_logger.LogDebug( "PeriodicRestart.PrivateMemory = {PrivateMemory}", ap.Recycling.PeriodicRestart.PrivateMemory );
-            //_logger.LogDebug( "PeriodicRestart.LogEventOnRecycle = {LogEventOnRecycle}", ap.Recycling.LogEventOnRecycle );
-
-            //foreach ( var x in ap.Recycling.PeriodicRestart.Schedule )
-            //    _logger.LogDebug( "PeriodicRestart.Schedule = {Schedule}", x.Time );
-
-            var apd = new ApplicationPoolDefinition();
-            apd.Name = ap.Name;
-            apd.AutoStart = ap.AutoStart;
-            apd.ProcessModel = pmd;
-            apd.ManagedPipelineMode = ap.ManagedPipelineMode;
-            apd.ManagedRuntimeVersion = Nullify( ap.ManagedRuntimeVersion );
+            var apd = ap.ToDefinition();
 
             defn.ApplicationPools.Add( apd );
         }
@@ -58,18 +36,9 @@ public partial class IisDeployer
 
             defn.Sites.Add( sd );
 
-
-            // Site bindings
             foreach ( var b in site.Bindings )
             {
-                var bd = new SiteBindingDefinition();
-                bd.Protocol = ToProtocol( b.Protocol );
-                bd.Host = Nullify( b.Host );
-                bd.Port = b.EndPoint.Port;
-
-                if ( b.EndPoint.Address != IPAddress.Any )
-                    bd.Address = b.EndPoint.Address.ToString();
-
+                var bd = b.ToDefinition();
                 sd.Bindings.Add( bd );
             }
 
@@ -145,28 +114,5 @@ public partial class IisDeployer
                 PhysicalPath = vd.PhysicalPath,
             } );
         }
-    }
-
-
-    /// <summary />
-    private static Protocol ToProtocol( string protocol )
-    {
-        if ( protocol == "http" )
-            return Protocol.HTTP;
-
-        if ( protocol == "https" )
-            return Protocol.HTTPS;
-
-        throw new NotSupportedException();
-    }
-
-
-    /// <summary />
-    private static string? Nullify( string value )
-    {
-        if ( value == "" )
-            return null;
-
-        return value;
     }
 }

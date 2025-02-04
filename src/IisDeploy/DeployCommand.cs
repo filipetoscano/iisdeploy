@@ -15,13 +15,13 @@ namespace IisKnife
 
 
         /// <summary />
-        [Argument( 0, Description = "Definition file (XML/JSON)" )]
+        [Argument( 0, Description = "Definition file" )]
         [FileExists]
         [Required]
         public string DefinitionFile { get; set; }
 
         /// <summary />
-        [Argument( 1, Description = "Source map file (XML/JSON)" )]
+        [Argument( 1, Description = "Source map file" )]
         [FileExists]
         [Required]
         public string MapFile { get; set; }
