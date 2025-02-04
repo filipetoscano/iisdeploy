@@ -92,15 +92,36 @@ public partial class IisDeployer
 
 
             /*
-             * Check binding
-             * TODO: Rewrite without .Clear'ing
+             * Site
              */
-            s.Bindings.Clear();
+            s.ServerAutoStart = sd.AutoStart;
 
-            foreach ( var b in sd.Bindings )
-                b.AddTo( s.Bindings );
 
-            s.ServerAutoStart = true;
+            /*
+             * Binding
+             */
+            var keep = new List<Binding>();
+            var remv = new List<Binding>();
+
+            foreach ( var bd in sd.Bindings )
+            {
+                var b = bd.AddTo( s.Bindings );
+                keep.Add( b );
+            }
+
+            foreach ( var b in s.Bindings )
+            {
+                if ( keep.Any( x => x.Protocol == b.Protocol && x.BindingInformation == b.BindingInformation ) == true )
+                    continue;
+
+                remv.Add( b );
+            }
+
+            foreach ( var b in remv )
+            {
+                _logger.LogWarning( "Site {SiteName}: Remove {Protocol}|{Binding} binding", sd.Name,b.Protocol, b.BindingInformation );
+                s.Bindings.Remove( b );
+            }
 
 
             /*
