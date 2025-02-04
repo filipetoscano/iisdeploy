@@ -93,7 +93,7 @@ public partial class IisDeployer : IIisDeployer
             foreach ( var app in site.Applications )
             {
                 if ( defn.RootPhysicalPath != null )
-                    app.PhysicalPath = Path.Combine( defn.RootPhysicalPath, app.PhysicalPath );
+                    app.PhysicalPath = PathCombine( defn.RootPhysicalPath, app.PhysicalPath );
 
                 if ( app.ApplicationPool != null && defn.ApplicationPools.Any( x => x.Name == app.ApplicationPool.Name ) == false )
                 {
@@ -109,7 +109,7 @@ public partial class IisDeployer : IIisDeployer
                 foreach ( var vdir in app.VirtualDirectories )
                 {
                     if ( defn.RootPhysicalPath != null )
-                        vdir.PhysicalPath = Path.Combine( defn.RootPhysicalPath, vdir.PhysicalPath );
+                        vdir.PhysicalPath = PathCombine( defn.RootPhysicalPath, vdir.PhysicalPath );
                 }
             }
         }
@@ -117,7 +117,17 @@ public partial class IisDeployer : IIisDeployer
 
 
     /// <summary />
-    private void NormalizeMap( DeploymentMap map )
+    private static string PathCombine( string basePath, string path )
+    {
+        var combined = Path.Combine( basePath, path );
+        var dirInfo = new DirectoryInfo( combined );
+
+        return dirInfo.FullName;
+    }
+
+
+    /// <summary />
+    private static void NormalizeMap( DeploymentMap map )
     {
         if ( map.Source == null )
             map.Source = new Dictionary<string, string>();
@@ -126,14 +136,14 @@ public partial class IisDeployer : IIisDeployer
         {
             foreach ( var key in map.Source.Keys.ToArray() )
             {
-                map.Source[ key ] = Path.Combine( map.RootSource, map.Source[ key ] );
+                map.Source[ key ] = PathCombine( map.RootSource, map.Source[ key ] );
             }
         }
     }
 
 
     /// <summary />
-    private void MutateDefinition( DeploymentDefinition definition, DeploymentColor color )
+    private static void MutateDefinition( DeploymentDefinition definition, DeploymentColor color )
     {
         foreach ( var sd in definition.Sites )
         {
@@ -156,8 +166,8 @@ public partial class IisDeployer : IIisDeployer
 
 
     /// <summary />
-    private string Mix( string path, DeploymentColor color )
+    private static string Mix( string path, DeploymentColor color )
     {
-        return Path.Combine( path, $"dc-{color}" );
+        return PathCombine( path, $"dc-{color}" );
     }
 }
