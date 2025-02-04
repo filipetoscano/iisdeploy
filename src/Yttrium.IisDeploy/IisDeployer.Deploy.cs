@@ -44,10 +44,26 @@ public partial class IisDeployer : IIisDeployer
 
             foreach ( var app in s.Applications )
             {
+                var appKey = KeyFor( s.Name, app.Path );
+
+                if ( map.Source.ContainsKey( appKey ) == false )
+                {
+                    _logger.LogError( "App {SiteName}{AppPath}: No source map with {Key}", s.Name, app.Path, appKey );
+                    continue;
+                }
+
                 var appFrom = map.Source[ s.Name + app.Path ];
                 var appTo = app.PhysicalPath;
 
-                await FromTo( "App", app.Path, appFrom, appTo );
+                if ( Directory.Exists( appFrom ) == false )
+                {
+                    _logger.LogError( "Map {Key}: Folder {Folder} does not exist", appKey, appFrom );
+                }
+                else
+                {
+                    _logger.LogInformation( "App {SiteName} {AppPath}", s.Name, app.Path );
+                    await FromTo( appFrom, appTo );
+                }
 
 
                 /*
@@ -58,10 +74,26 @@ public partial class IisDeployer : IIisDeployer
 
                 foreach ( var vdir in app.VirtualDirectories )
                 {
-                    var vdirFrom = map.Source[ s.Name + app.Path + vdir ];
+                    var vdirKey = KeyFor( s.Name, app.Path, vdir.Path );
+
+                    if ( map.Source.ContainsKey( vdirKey ) == false )
+                    {
+                        _logger.LogError( "Vdir {SiteName}{AppPath}{VdirPath}: No source map with {Key}", s.Name, app.Path, vdir.Path, vdirKey );
+                        continue;
+                    }
+
+                    var vdirFrom = map.Source[ vdirKey ];
                     var vdirTo = vdir.PhysicalPath;
 
-                    await FromTo( "VirtualDirectory", app.Path + vdir, vdirFrom, vdirTo );
+                    if ( Directory.Exists( vdirFrom ) == false )
+                    {
+                        _logger.LogError( "Map {Key}: Folder {Folder} does not exist", vdirKey, vdirFrom );
+                    }
+                    else
+                    {
+                        _logger.LogInformation( "Vdir {SiteName} {AppPath} {VdirPath}", s.Name, app.Path, vdir.Path );
+                        await FromTo( vdirFrom, vdirTo );
+                    }
                 }
             }
         }
@@ -75,13 +107,26 @@ public partial class IisDeployer : IIisDeployer
 
 
     /// <summary />
-    private async Task FromTo( string type, string name, string from, string to )
+    private static string KeyFor( string site, string appPath )
     {
-        if ( Directory.Exists( from ) == false )
-            throw new InvalidOperationException( $"Source directory '{from}' does not exist" );
+        return site + appPath;
+    }
 
-        _logger.LogInformation( "--- {Type}: {Name}", type, name );
-        _logger.LogInformation( "Mirror {Name}: {From} >> {To}", name, from, to );
+
+    /// <summary />
+    private static string KeyFor( string site, string appPath, string vdirPath )
+    {
+        if ( appPath == "/" )
+            return site + vdirPath;
+
+        return site + appPath + vdirPath;
+    }
+
+
+    /// <summary />
+    private async Task FromTo( string from, string to )
+    {
+        _logger.LogInformation( "Mirror {From} >> {To}", from, to );
 
         await Cli.Wrap( Robocopy )
             .WithArguments( args => args
