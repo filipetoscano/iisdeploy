@@ -4,10 +4,10 @@ using Serilog;
 using System;
 using Yttrium.IisDeploy;
 
-namespace IisDeploy
+namespace IisKnife
 {
     /// <summary />
-    [Command( "iisdeploy" )]
+    [Command( "iisknife" )]
     [Subcommand( typeof( ApplyCommand ) )]
     [Subcommand( typeof( DeployCommand ) )]
     [Subcommand( typeof( GetCommand ) )]

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Yttrium.IisDeploy;
 
-namespace IisDeploy
+namespace IisKnife
 {
     /// <summary />
     [Command( "get", Description = "Views the current IIS configuration" )]

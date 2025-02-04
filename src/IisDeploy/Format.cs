@@ -1,4 +1,4 @@
-﻿namespace IisDeploy
+﻿namespace IisKnife
 {
     /// <summary />
     public enum Format

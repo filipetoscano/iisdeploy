@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.Json;
 using Yttrium.IisDeploy;
 
-namespace IisDeploy
+namespace IisKnife
 {
     /// <summary />
     public abstract class CommandBase

@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{926E6B15-200
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yttrium.IisDeploy", "src\Yttrium.IisDeploy\Yttrium.IisDeploy.csproj", "{477C33A5-87F1-4198-82F3-44D995B32B4E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IisDeploy", "src\IisDeploy\IisDeploy.csproj", "{26D264F2-575E-4C56-8C6D-2497D55341FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IisKnife", "src\IisDeploy\IisKnife.csproj", "{26D264F2-575E-4C56-8C6D-2497D55341FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

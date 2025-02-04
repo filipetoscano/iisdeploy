@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Yttrium.IisDeploy;
 
-namespace IisDeploy
+namespace IisKnife
 {
     /// <summary />
     [Command( "deploy", Description = "Deploys files from source to target directories" )]

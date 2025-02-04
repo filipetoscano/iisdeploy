@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Yttrium.IisDeploy;
 
-namespace IisDeploy
+namespace IisKnife
 {
     /// <summary />
     [Command( "state", Description = "For blue/green deployments, gets the current / next versions" )]

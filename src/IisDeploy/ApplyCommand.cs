@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Yttrium.IisDeploy;
 
-namespace IisDeploy
+namespace IisKnife
 {
     /// <summary />
     [Command( "apply", Description = "Applies IIS configuration" )]
@@ -20,11 +20,6 @@ namespace IisDeploy
         [FileExists]
         [Required]
         public string DefinitionFile { get; set; }
-
-        /// <summary />
-        [Option( "-m|--map", CommandOptionType.SingleValue, Description = "Map file (XML/JSON)" )]
-        [FileExists]
-        public string MapFile { get; set; }
 
         /// <summary />
         [Option( "-v|--verbose", CommandOptionType.NoValue, Description = "Verbose output" )]
@@ -46,7 +41,6 @@ namespace IisDeploy
              * 
              */
             var defn = LoadDefinition( this.DefinitionFile );
-            var config = LoadMap( this.MapFile );
 
 
             /*
@@ -56,10 +50,8 @@ namespace IisDeploy
             {
                 var jso = new JsonSerializerOptions() { WriteIndented = true };
                 var def = JsonSerializer.Serialize( defn, jso );
-                var cfg = JsonSerializer.Serialize( config, jso );
 
                 _logger.LogDebug( "Definition: {Definition}", def );
-                _logger.LogDebug( "Config: {Config}", cfg );
 
                 return 1;
             }
