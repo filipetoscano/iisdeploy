@@ -8,10 +8,10 @@ using Yttrium.IisDeploy;
 namespace IisDeploy
 {
     /// <summary />
-    [Command( "configure", Description = "Configures IIS websites / virtual directories" )]
-    public class ConfigureCommand : CommandBase
+    [Command( "apply", Description = "Applies IIS configuration" )]
+    public class ApplyCommand : CommandBase
     {
-        private readonly ILogger<ConfigureCommand> _logger;
+        private readonly ILogger<ApplyCommand> _logger;
         private readonly IIisDeployer _deployer;
 
 
@@ -22,13 +22,9 @@ namespace IisDeploy
         public string DefinitionFile { get; set; }
 
         /// <summary />
-        [Option( "-c|--config", CommandOptionType.SingleValue, Description = "Configuration file (XML/JSON)" )]
+        [Option( "-m|--map", CommandOptionType.SingleValue, Description = "Map file (XML/JSON)" )]
         [FileExists]
-        public string ConfigFile { get; set; }
-
-        /// <summary />
-        [Option( "-x|--blue-green", CommandOptionType.NoValue, Description = "Whether to use blue/green alternates" )]
-        public bool? BlueGreen { get; set; }
+        public string MapFile { get; set; }
 
         /// <summary />
         [Option( "-v|--verbose", CommandOptionType.NoValue, Description = "Verbose output" )]
@@ -36,7 +32,7 @@ namespace IisDeploy
 
 
         /// <summary />
-        public ConfigureCommand( ILogger<ConfigureCommand> logger, IIisDeployer deployer )
+        public ApplyCommand( ILogger<ApplyCommand> logger, IIisDeployer deployer )
         {
             _logger = logger;
             _deployer = deployer;
@@ -49,22 +45,8 @@ namespace IisDeploy
             /*
              * 
              */
-            var definition = LoadDefinition( this.DefinitionFile );
-            var config = LoadMap( this.ConfigFile );
-
-
-            /*
-             *
-             */
-            DeploymentColor? next = null;
-
-            if ( this.BlueGreen == true )
-            {
-                var color = await _deployer.ColorGet( definition.Name );
-                next = color == DeploymentColor.Blue ? DeploymentColor.Green : DeploymentColor.Green;
-
-                await _deployer.Mutate( definition, next.Value );
-            }
+            var defn = LoadDefinition( this.DefinitionFile );
+            var config = LoadMap( this.MapFile );
 
 
             /*
@@ -73,7 +55,7 @@ namespace IisDeploy
             if ( this.Verbose == true )
             {
                 var jso = new JsonSerializerOptions() { WriteIndented = true };
-                var def = JsonSerializer.Serialize( definition, jso );
+                var def = JsonSerializer.Serialize( defn, jso );
                 var cfg = JsonSerializer.Serialize( config, jso );
 
                 _logger.LogDebug( "Definition: {Definition}", def );
@@ -86,9 +68,14 @@ namespace IisDeploy
             /*
              * 
              */
-            await _deployer.Apply( definition, new DefinitionApplyOptions()
+            var state = await _deployer.Apply( defn, new DefinitionApplyOptions()
             {
             } );
+
+            if ( state.Current.HasValue == true )
+                _logger.LogInformation( "🔥 Deployment {Name}: Live with {Color}", defn.Name, state.Current );
+            else
+                _logger.LogInformation( "🔥 Deployment {Name}: Live", defn.Name );
 
             return 0;
         }

@@ -3,6 +3,10 @@
 /// <summary />
 public interface IIisDeployer
 {
+    /// <summary />
+    Task<DeploymentState> State( DeploymentDefinition defn );
+
+
     /// <summary>
     /// Deploys the source files to the target locations.
     /// </summary>
@@ -12,23 +16,7 @@ public interface IIisDeployer
     /// <param name="map">
     /// Deployment map.
     /// </param>
-    Task Deploy( DeploymentDefinition definition, DeploymentMap map );
-
-
-    /// <summary />
-    Task<DeploymentColor> ColorGet( string deploymentName );
-
-
-    /// <summary />
-    Task Normalize( DeploymentDefinition definition );
-
-
-    /// <summary />
-    Task Normalize( DeploymentMap map );
-
-
-    /// <summary />
-    Task Mutate( DeploymentDefinition definition, DeploymentColor color );
+    Task<DeploymentState> Deploy( DeploymentDefinition definition, DeploymentMap map );
 
 
     /// <summary>
@@ -49,5 +37,5 @@ public interface IIisDeployer
     /// <param name="options">
     /// Options when applying the definition.
     /// </param>
-    Task Apply( DeploymentDefinition definition, DefinitionApplyOptions options );
+    Task<DeploymentState> Apply( DeploymentDefinition definition, DefinitionApplyOptions options );
 }

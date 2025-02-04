@@ -7,8 +7,22 @@ namespace Yttrium.IisDeploy;
 public partial class IisDeployer
 {
     /// <summary />
-    public Task Apply( DeploymentDefinition definition, DefinitionApplyOptions options )
+    public Task<DeploymentState> Apply( DeploymentDefinition defn, DefinitionApplyOptions options )
     {
+        /*
+         * 
+         */
+        var state = LoadState( defn );
+
+        NormalizeDefinition( defn );
+
+        if ( defn.HasBlueGreen == true )
+        {
+            state.Current = state.NextColor();
+            MutateDefinition( defn, state.Current.Value );
+        }
+
+
         /*
          * 
          */
@@ -20,7 +34,7 @@ public partial class IisDeployer
          */
         _logger.LogDebug( "Ensure application pools" );
 
-        foreach ( var pd in definition.ApplicationPools )
+        foreach ( var pd in defn.ApplicationPools )
         {
             var p = mgr.ApplicationPools.SingleOrDefault( x => x.Name == pd.Name );
 
@@ -64,7 +78,7 @@ public partial class IisDeployer
          */
         _logger.LogDebug( "Ensure web sites / root apps" );
 
-        foreach ( var sd in definition.Sites )
+        foreach ( var sd in defn.Sites )
         {
             var s = mgr.Sites.SingleOrDefault( x => x.Name == sd.Name );
 
@@ -140,7 +154,7 @@ public partial class IisDeployer
 
             foreach ( var site in mgr.Sites )
             {
-                if ( definition.Sites.Any( x => x.Name == site.Name ) == true )
+                if ( defn.Sites.Any( x => x.Name == site.Name ) == true )
                     continue;
 
                 usite.Add( site.Name, site );
@@ -164,7 +178,7 @@ public partial class IisDeployer
          */
         foreach ( var site in mgr.Sites )
         {
-            var sd = definition.Sites.SingleOrDefault( x => x.Name == site.Name );
+            var sd = defn.Sites.SingleOrDefault( x => x.Name == site.Name );
 
             // Only happens when site wasn't removed, even though it isn't
             // in the definition. Good feature when the server is shared by
@@ -268,7 +282,7 @@ public partial class IisDeployer
          */
         if ( options.RecycleManagedApplicationPools == true )
         {
-            foreach ( var p in definition.ApplicationPools )
+            foreach ( var p in defn.ApplicationPools )
             {
                 var pool = mgr.ApplicationPools.Single( x => x.Name == p.Name );
 
@@ -279,8 +293,16 @@ public partial class IisDeployer
 
 
         /*
+         * #8. Save the state
+         */
+        state.Moment = DateTime.UtcNow;
+
+        SaveState( defn, state );
+
+
+        /*
          * 
          */
-        return Task.CompletedTask;
+        return Task.FromResult( state );
     }
 }

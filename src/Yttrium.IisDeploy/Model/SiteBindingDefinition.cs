@@ -8,7 +8,6 @@ namespace Yttrium.IisDeploy;
 public class SiteBindingDefinition
 {
     /// <summary />
-    [JsonConverter( typeof( JsonStringEnumConverter ) )]
     [XmlAttribute( "protocol")]
     public Protocol Protocol { get; set; }
 

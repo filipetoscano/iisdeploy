@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Yttrium.IisDeploy;
 
@@ -15,8 +16,58 @@ public partial class IisDeployer : IIisDeployer
     }
 
 
-    /// <inheritdoc />
-    public Task Normalize( DeploymentDefinition defn )
+    /// <summary />
+    private DeploymentState LoadState( DeploymentDefinition defn )
+    {
+        if ( defn.Name == null )
+            throw new ApplicationException( $"$.Name is required" );
+
+        if ( defn.RootPhysicalPath == null )
+            throw new ApplicationException( $"$.RootPhysicalPath is required" );
+
+
+        /*
+         * 
+         */
+        var fname = Path.Combine( defn.RootPhysicalPath, $"d-{defn.Name}.json" );
+
+        if ( File.Exists( fname ) == false )
+            return new DeploymentState();
+
+
+        /*
+         * 
+         */
+        var json = File.ReadAllText( fname );
+
+        return JsonSerializer.Deserialize<DeploymentState>( json )!;
+    }
+
+
+    /// <summary />
+    private void SaveState( DeploymentDefinition defn, DeploymentState state )
+    {
+        if ( defn.Name == null )
+            throw new ApplicationException( $"$.Name is required" );
+
+        if ( defn.RootPhysicalPath == null )
+            throw new ApplicationException( $"$.RootPhysicalPath is required" );
+
+
+        /*
+         * 
+         */
+        var jso = new JsonSerializerOptions() { WriteIndented = true };
+        var json = JsonSerializer.Serialize( state, jso );
+
+        var fname = Path.Combine( defn.RootPhysicalPath, $"d-{defn.Name}.json" );
+
+        File.WriteAllText( fname, json );
+    }
+
+
+    /// <summary />
+    private void NormalizeDefinition( DeploymentDefinition defn )
     {
         foreach ( var site in defn.Sites )
         {
@@ -38,13 +89,11 @@ public partial class IisDeployer : IIisDeployer
                 }
             }
         }
-
-        return Task.CompletedTask;
     }
 
 
-    /// <inheritdoc />
-    public Task Normalize( DeploymentMap map )
+    /// <summary />
+    private void NormalizeMap( DeploymentMap map )
     {
         if ( map.RootSource != null )
         {
@@ -53,16 +102,12 @@ public partial class IisDeployer : IIisDeployer
                 map.Source[ key ] = Path.Combine( map.RootSource, map.Source[ key ] );
             }
         }
-
-        return Task.CompletedTask;
     }
 
 
-    /// <inheritdoc />
-    public async Task Mutate( DeploymentDefinition definition, DeploymentColor color )
+    /// <summary />
+    private void MutateDefinition( DeploymentDefinition definition, DeploymentColor color )
     {
-        await Task.Yield();
-
         foreach ( var sd in definition.Sites )
         {
             foreach ( var ad in sd.Applications )

@@ -65,13 +65,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandBase.cs" />
-    <Compile Include="ConfigureCommand.cs" />
+    <Compile Include="ApplyCommand.cs" />
     <Compile Include="GetCommand.cs" />
     <Compile Include="DeployCommand.cs" />
     <Compile Include="Format.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ColorCommand.cs" />
+    <Compile Include="StateCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

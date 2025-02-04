@@ -21,13 +21,10 @@ namespace IisDeploy
         public string DefinitionFile { get; set; }
 
         /// <summary />
-        [Option( "-c|--config", CommandOptionType.SingleValue, Description = "Configuration file (XML/JSON)" )]
+        [Option( "-m|--map", CommandOptionType.SingleValue, Description = "Source map file (XML/JSON)" )]
         [FileExists]
+        [Required]
         public string MapFile { get; set; }
-
-        /// <summary />
-        [Option( "-x|--blue-green", CommandOptionType.NoValue, Description = "Whether to use blue/green alternates" )]
-        public bool? BlueGreen { get; set; }
 
 
         /// <summary />
@@ -44,28 +41,19 @@ namespace IisDeploy
             /*
              * 
              */
-            var definition = LoadDefinition( this.DefinitionFile );
+            var defn = LoadDefinition( this.DefinitionFile );
             var map = LoadMap( this.MapFile );
-
-
-            /*
-             *
-             */
-            DeploymentColor? next = null;
-
-            if ( this.BlueGreen == true )
-            {
-                var color = await _deployer.ColorGet( definition.Name );
-                next = color == DeploymentColor.Blue ? DeploymentColor.Green : DeploymentColor.Blue;
-
-                await _deployer.Mutate( definition, next.Value );
-            }
 
 
             /*
              * 
              */
-            await _deployer.Deploy( definition, map );
+            var state = await _deployer.Deploy( defn, map );
+
+            if ( state.Current.HasValue == true )
+                _logger.LogInformation( "✅ Deployment {Name}: Copied files to {Color}", defn.Name, state.NextColor() );
+            else
+                _logger.LogInformation( "✅ Deployment {Name}: Copied files", defn.Name );
 
             return 0;
         }

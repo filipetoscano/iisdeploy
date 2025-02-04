@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json;
 using Yttrium.IisDeploy;
 
 namespace IisDeploy
@@ -10,33 +11,42 @@ namespace IisDeploy
         /// <summary />
         protected DeploymentDefinition LoadDefinition( string fileName )
         {
+            DeploymentDefinition obj;
+
             using ( var stream = new FileStream( fileName, FileMode.Open ) )
             {
-                throw new NotImplementedException();
-                //if ( Path.GetExtension( fileName ) == ".json" )
-                //    return loader.LoadDefinitionJson( stream );
-                //else
-                //    return loader.LoadDefinitionXml( stream );
+                if ( Path.GetExtension( fileName ) == ".xml" )
+                {
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    obj = JsonSerializer.Deserialize<DeploymentDefinition>( stream );
+                }
             }
+
+            return obj;
         }
 
 
         /// <summary />
         protected DeploymentMap LoadMap( string fileName )
         {
-            DeploymentMap cfg;
+            DeploymentMap obj;
 
             using ( var stream = new FileStream( fileName, FileMode.Open ) )
             {
-                throw new NotImplementedException();
-
-                //if ( Path.GetExtension( fileName ).ToLowerInvariant() == ".json" )
-                //    cfg = loader.LoadConfigJson( stream );
-                //else
-                //    cfg = loader.LoadConfigXml( stream );
+                if ( Path.GetExtension( fileName ) == ".xml" )
+                {
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    obj = JsonSerializer.Deserialize<DeploymentMap>( stream );
+                }
             }
 
-            return cfg;
+            return obj;
         }
     }
 }

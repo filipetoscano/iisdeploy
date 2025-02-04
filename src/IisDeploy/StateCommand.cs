@@ -9,17 +9,18 @@ using Yttrium.IisDeploy;
 namespace IisDeploy
 {
     /// <summary />
-    [Command( "color", Description = "For blue/green deployments, gets the current / next versions" )]
-    public class ColorCommand : CommandBase
+    [Command( "state", Description = "For blue/green deployments, gets the current / next versions" )]
+    public class StateCommand : CommandBase
     {
-        private readonly ILogger<ColorCommand> _logger;
+        private readonly ILogger<StateCommand> _logger;
         private readonly IIisDeployer _deployer;
 
 
         /// <summary />
-        [Argument( 0, Description = "Name of deployment" )]
+        [Argument( 0, Description = "Definition file (XML/JSON)" )]
+        [FileExists]
         [Required]
-        public string DeploymentName { get; set; }
+        public string DefinitionFile { get; set; }
 
         /// <summary />
         [Option( "--json", CommandOptionType.NoValue, Description = "Output as JSON object" )]
@@ -27,7 +28,7 @@ namespace IisDeploy
 
 
         /// <summary />
-        public ColorCommand( ILogger<ColorCommand> logger, IIisDeployer deployer )
+        public StateCommand( ILogger<StateCommand> logger, IIisDeployer deployer )
         {
             _logger = logger;
             _deployer = deployer;
@@ -37,15 +38,17 @@ namespace IisDeploy
         /// <summary />
         public async Task<int> OnExecuteAsync()
         {
-            var curr = await _deployer.ColorGet( this.DeploymentName );
-            var next = curr == DeploymentColor.Blue ? DeploymentColor.Green : DeploymentColor.Blue;
+            var defn = LoadDefinition( this.DefinitionFile );
+            var state = await _deployer.State( defn );
+
 
             if ( this.AsJson == true )
             {
                 var obj = new
                 {
-                    Current = curr,
-                    Next = next,
+                    Current = state.Current,
+                    Next = state.NextColor(),
+                    Moment = state.Moment,
                 };
 
                 var json = JsonSerializer.Serialize( obj, new JsonSerializerOptions()
@@ -57,8 +60,8 @@ namespace IisDeploy
             }
             else
             {
-                _logger.LogInformation( "Current: {Current}", curr );
-                _logger.LogInformation( "Next: {Next}", next );
+                _logger.LogInformation( "Current: {Current}", state.Current );
+                _logger.LogInformation( "Next: {Next}", state.NextColor() );
             }
 
             return 0;

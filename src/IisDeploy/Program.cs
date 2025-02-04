@@ -8,10 +8,10 @@ namespace IisDeploy
 {
     /// <summary />
     [Command( "iisdeploy" )]
-    [Subcommand( typeof( ColorCommand ) )]
-    [Subcommand( typeof( ConfigureCommand ) )]
+    [Subcommand( typeof( ApplyCommand ) )]
     [Subcommand( typeof( DeployCommand ) )]
     [Subcommand( typeof( GetCommand ) )]
+    [Subcommand( typeof( StateCommand ) )]
     [HelpOption]
     [VersionOption( "1.0.0" )]
     public class Program

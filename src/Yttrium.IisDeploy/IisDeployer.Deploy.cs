@@ -10,8 +10,20 @@ public partial class IisDeployer : IIisDeployer
 
 
     /// <inheritdoc />
-    public async Task Deploy( DeploymentDefinition definition, DeploymentMap config )
+    public async Task<DeploymentState> Deploy( DeploymentDefinition defn, DeploymentMap map )
     {
+        /*
+         * 
+         */
+        var state = LoadState( defn );
+
+        NormalizeDefinition( defn );
+        NormalizeMap( map );
+
+        if ( defn.HasBlueGreen == true )
+            MutateDefinition( defn, state.NextColor() );
+
+
         /*
          * 
          */
@@ -22,7 +34,7 @@ public partial class IisDeployer : IIisDeployer
         /*
          * Websites
          */
-        foreach ( var s in definition.Sites )
+        foreach ( var s in defn.Sites )
         {
             /*
              * 
@@ -32,7 +44,7 @@ public partial class IisDeployer : IIisDeployer
 
             foreach ( var app in s.Applications )
             {
-                var appFrom = config.Source[ s.Name + app.Path ];
+                var appFrom = map.Source[ s.Name + app.Path ];
                 var appTo = app.PhysicalPath;
 
                 await FromTo( "App", app.Path, appFrom, appTo );
@@ -46,13 +58,19 @@ public partial class IisDeployer : IIisDeployer
 
                 foreach ( var vdir in app.VirtualDirectories )
                 {
-                    var vdirFrom = config.Source[ s.Name + app.Path + vdir ];
+                    var vdirFrom = map.Source[ s.Name + app.Path + vdir ];
                     var vdirTo = vdir.PhysicalPath;
 
                     await FromTo( "VirtualDirectory", app.Path + vdir, vdirFrom, vdirTo );
                 }
             }
         }
+
+
+        /*
+         * 
+         */
+        return state;
     }
 
 

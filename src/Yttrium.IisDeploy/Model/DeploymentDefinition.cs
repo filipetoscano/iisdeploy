@@ -9,13 +9,19 @@ public class DeploymentDefinition
 {
     /// <summary />
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    [XmlElement( "name" )]
+    [XmlAttribute( "name" )]
     public string? Name { get; set; }
+
+    /// <summary />
+    [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
+    [XmlAttribute( "hasBlueGreen" )]
+    public bool? HasBlueGreen { get; set; }
 
     /// <summary />
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
     [XmlElement( "rootPhysicalPath" )]
     public string? RootPhysicalPath { get; set; }
+
 
     /// <summary />
     [XmlArray( "sites" )]
