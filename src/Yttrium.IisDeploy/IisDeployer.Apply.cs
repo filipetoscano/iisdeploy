@@ -84,7 +84,7 @@ public partial class IisDeployer
 
             if ( s == null )
             {
-                var appd = sd.Applications.Single( x => x.PhysicalPath == ApplicationDefinition.RootPath );
+                var appd = sd.Applications.Single( x => x.Path == ApplicationDefinition.RootPath );
 
                 _logger.LogInformation( "Site {SiteName}: Add", sd.Name );
                 s = mgr.Sites.Add( sd.Name, appd.PhysicalPath, sd.Bindings.First().Port );
@@ -191,7 +191,7 @@ public partial class IisDeployer
 
             foreach ( var app in site.Applications )
             {
-                // Root app belongs to the same. No need to check :)
+                // Root app belongs to the site. No need to check :)
                 if ( app.Path == "/" )
                     continue;
 
@@ -208,6 +208,10 @@ public partial class IisDeployer
 
                 foreach ( var vdir in app.VirtualDirectories )
                 {
+                    // An application is always the / vdir within the app: ignore.
+                    if ( vdir.Path == "/" )
+                        continue;
+
                     var vd = ad.VirtualDirectories?.SingleOrDefault( x => x.Path == vdir.Path );
 
                     if ( vd == null )

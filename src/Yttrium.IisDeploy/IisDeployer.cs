@@ -69,13 +69,37 @@ public partial class IisDeployer : IIisDeployer
     /// <summary />
     private void NormalizeDefinition( DeploymentDefinition defn )
     {
+        /*
+         * 
+         */
+        if ( defn.Sites == null )
+            defn.Sites = new List<SiteDefinition>();
+
+        if ( defn.ApplicationPools == null )
+            defn.ApplicationPools = new List<ApplicationPoolDefinition>();
+
+
+        /*
+         * 
+         */
         foreach ( var site in defn.Sites )
         {
+            if ( site.Applications == null )
+                site.Applications = new List<ApplicationDefinition>();
+
+            if ( site.Applications.Count( x => x.Path == "/" ) != 1 )
+                throw new ApplicationException( $"Site {site.Name} must have only one app with path /" );
+
             foreach ( var app in site.Applications )
             {
+                if ( defn.RootPhysicalPath != null )
+                    app.PhysicalPath = Path.Combine( defn.RootPhysicalPath, app.PhysicalPath );
+
                 if ( app.ApplicationPool != null && defn.ApplicationPools.Any( x => x.Name == app.ApplicationPool.Name ) == false )
                 {
                     defn.ApplicationPools.Add( app.ApplicationPool );
+
+                    app.ApplicationPoolName = app.ApplicationPool.Name;
                     app.ApplicationPool = null;
                 }
 
@@ -95,6 +119,9 @@ public partial class IisDeployer : IIisDeployer
     /// <summary />
     private void NormalizeMap( DeploymentMap map )
     {
+        if ( map.Source == null )
+            map.Source = new Dictionary<string, string>();
+
         if ( map.RootSource != null )
         {
             foreach ( var key in map.Source.Keys.ToArray() )
