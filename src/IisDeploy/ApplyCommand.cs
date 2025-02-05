@@ -1,7 +1,6 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Yttrium.IisDeploy;
 
@@ -16,14 +15,15 @@ namespace IisKnife
 
 
         /// <summary />
-        [Argument( 0, Description = "Definition file" )]
+        [Argument( 0, Description = "Definition file (JSON)" )]
         [FileExists]
         [Required]
         public string DefinitionFile { get; set; }
 
         /// <summary />
-        [Option( "-v|--verbose", CommandOptionType.NoValue, Description = "Verbose output" )]
-        public bool Verbose { get; set; }
+        [Option( "--options", CommandOptionType.SingleValue, Description = "Options file (JSON)" )]
+        [FileExists]
+        public string OptionsFile { get; set; }
 
 
         /// <summary />
@@ -40,29 +40,14 @@ namespace IisKnife
             /*
              * 
              */
-            var defn = LoadDefinition( this.DefinitionFile );
+            var defn = Load<DeploymentDefinition>( this.DefinitionFile );
+            var opts = Load<ApplyOptions>( this.OptionsFile );
 
 
             /*
              * 
              */
-            if ( this.Verbose == true )
-            {
-                var jso = new JsonSerializerOptions() { WriteIndented = true };
-                var def = JsonSerializer.Serialize( defn, jso );
-
-                _logger.LogDebug( "Definition: {Definition}", def );
-
-                return 1;
-            }
-
-
-            /*
-             * 
-             */
-            var state = await _deployer.Apply( defn, new DefinitionApplyOptions()
-            {
-            } );
+            var state = await _deployer.Apply( defn, opts );
 
             if ( state.Current.HasValue == true )
                 _logger.LogInformation( "🔥 Deployment {Name}: Live with {Color}", defn.Name, state.Current );

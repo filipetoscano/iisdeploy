@@ -16,7 +16,10 @@ public interface IIisDeployer
     /// <param name="map">
     /// Deployment map.
     /// </param>
-    Task<DeploymentState> Deploy( DeploymentDefinition definition, DeploymentMap map );
+    /// <param name="options">
+    /// Deployment options.
+    /// </param>
+    Task<DeploymentState> Deploy( DeploymentDefinition definition, DeploymentMap map, DeployOptions options );
 
 
     /// <summary>
@@ -35,7 +38,7 @@ public interface IIisDeployer
     /// Definition of IIS websites and virtual directories.
     /// </param>
     /// <param name="options">
-    /// Options when applying the definition.
+    /// Apply options.
     /// </param>
-    Task<DeploymentState> Apply( DeploymentDefinition definition, DefinitionApplyOptions options );
+    Task<DeploymentState> Apply( DeploymentDefinition definition, ApplyOptions options );
 }

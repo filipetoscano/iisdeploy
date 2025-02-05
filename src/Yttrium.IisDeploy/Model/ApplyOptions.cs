@@ -1,7 +1,7 @@
 ﻿namespace Yttrium.IisDeploy;
 
 /// <summary />
-public class DefinitionApplyOptions
+public class ApplyOptions
 {
     /// <summary />
     public bool RemoveUnmanagedSites { get; set; } = true;
@@ -16,5 +16,8 @@ public class DefinitionApplyOptions
     public bool RemoveUnusedApplicationPools { get; set; } = true;
 
     /// <summary />
-    public bool RecycleManagedApplicationPools { get; set; } = true;
+    public bool StartStopManagedApplicationPools { get; set; } = true;
+
+    /// <summary />
+    public bool RecycleManagedApplicationPools { get; set; } = false;
 }

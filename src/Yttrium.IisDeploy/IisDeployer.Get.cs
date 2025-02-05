@@ -10,7 +10,7 @@ public partial class IisDeployer
     {
         await Task.Yield();
 
-        using var mgr = new ServerManager();
+        using var mgr = GetIisServerManager();
         var defn = new DeploymentDefinition();
 
 

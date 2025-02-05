@@ -1,5 +1,6 @@
 ﻿using CliWrap;
 using Microsoft.Extensions.Logging;
+using Microsoft.Web.Administration;
 
 namespace Yttrium.IisDeploy;
 
@@ -10,10 +11,10 @@ public partial class IisDeployer : IIisDeployer
 
 
     /// <inheritdoc />
-    public async Task<DeploymentState> Deploy( DeploymentDefinition defn, DeploymentMap map )
+    public async Task<DeploymentState> Deploy( DeploymentDefinition defn, DeploymentMap map, DeployOptions options )
     {
         /*
-         * 
+         * #1. 
          */
         var state = LoadState( defn );
 
@@ -28,11 +29,37 @@ public partial class IisDeployer : IIisDeployer
          * 
          */
         if ( File.Exists( Robocopy ) == false )
-            throw new InvalidOperationException( "Robocopy not found" );
+            throw new IisException( "Robocopy not found" );
 
 
         /*
-         * Websites
+         * #2. Stop (managed) pools
+         */
+        using var mgr = GetIisServerManager();
+
+        if ( options.StartStopManagedApplicationPools == true )
+        {
+            foreach ( var pd in defn.ApplicationPools )
+            {
+                var pool = mgr.ApplicationPools.Single( x => x.Name == pd.Name );
+
+                _logger.LogInformation( "Pool {PoolName}: Stopping", pd.Name );
+
+                if ( pool.State == ObjectState.Started || pool.State == ObjectState.Starting )
+                    pool.Stop();
+
+
+                // Give time for applications to terminate
+                while ( pool.State != ObjectState.Stopped )
+                {
+                    await Task.Delay( 1_000 );
+                }
+            }
+        }
+
+
+        /*
+         * #3. Copy files
          */
         foreach ( var s in defn.Sites )
         {
@@ -48,7 +75,7 @@ public partial class IisDeployer : IIisDeployer
 
                 if ( map.Source.ContainsKey( appKey ) == false )
                 {
-                    _logger.LogError( "App {SiteName}{AppPath}: No source map with {Key}", s.Name, app.Path, appKey );
+                    _logger.LogError( "App {SiteName}|{AppPath}: No source map with {Key}", s.Name, app.Path, appKey );
                     continue;
                 }
 
@@ -61,7 +88,8 @@ public partial class IisDeployer : IIisDeployer
                 }
                 else
                 {
-                    _logger.LogInformation( "App {SiteName} {AppPath}", s.Name, app.Path );
+                    _logger.LogDebug( "-------------------------------------------------------------------------------" );
+                    _logger.LogInformation( "App {SiteName}|{AppPath}", s.Name, app.Path );
                     await FromTo( appFrom, appTo );
                 }
 
@@ -78,7 +106,7 @@ public partial class IisDeployer : IIisDeployer
 
                     if ( map.Source.ContainsKey( vdirKey ) == false )
                     {
-                        _logger.LogError( "Vdir {SiteName}{AppPath}{VdirPath}: No source map with {Key}", s.Name, app.Path, vdir.Path, vdirKey );
+                        _logger.LogError( "Vdir {SiteName}|{AppPath}|{VdirPath}: No source map with {Key}", s.Name, app.Path, vdir.Path, vdirKey );
                         continue;
                     }
 
@@ -91,10 +119,26 @@ public partial class IisDeployer : IIisDeployer
                     }
                     else
                     {
-                        _logger.LogInformation( "Vdir {SiteName} {AppPath} {VdirPath}", s.Name, app.Path, vdir.Path );
+                        _logger.LogDebug( "-------------------------------------------------------------------------------" );
+                        _logger.LogInformation( "Vdir {SiteName}|{AppPath}|{VdirPath}", s.Name, app.Path, vdir.Path );
                         await FromTo( vdirFrom, vdirTo );
                     }
                 }
+            }
+        }
+
+
+        /*
+         * #4. Start (managed) pools
+         */
+        if ( options.StartStopManagedApplicationPools == true )
+        {
+            foreach ( var pd in defn.ApplicationPools )
+            {
+                var pool = mgr.ApplicationPools.Single( x => x.Name == pd.Name );
+
+                _logger.LogInformation( "Pool {PoolName}: Starting", pd.Name );
+                pool.Start();
             }
         }
 

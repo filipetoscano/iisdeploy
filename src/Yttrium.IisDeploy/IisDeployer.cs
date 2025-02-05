@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Web.Administration;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 namespace Yttrium.IisDeploy;
@@ -13,6 +15,37 @@ public partial class IisDeployer : IIisDeployer
     public IisDeployer( ILogger<IisDeployer> logger )
     {
         _logger = logger;
+    }
+
+
+    /// <summary />
+    private ServerManager GetIisServerManager()
+    {
+        /*
+         * Initialize a new instance of `ServerManager`, but let the caller
+         * dispose of the instance.
+         */
+        var mgr = new ServerManager();
+
+
+        /*
+         * Call *any* method from `ServerManager` in order to trigger a 
+         */
+        try
+        {
+            _ = mgr.ApplicationPools;
+        }
+        catch ( COMException ex )
+        {
+            Console.WriteLine( ex.HResult );
+
+            if ( ex.HResult == -2147221164 )
+                throw new IisNotInstalledException( $"No IIS installed" );
+
+            throw new IisException( $"Failed to call IIS methods", ex );
+        }
+
+        return mgr;
     }
 
 

@@ -7,7 +7,7 @@ namespace Yttrium.IisDeploy;
 public partial class IisDeployer
 {
     /// <summary />
-    public Task<DeploymentState> Apply( DeploymentDefinition defn, DefinitionApplyOptions options )
+    public async Task<DeploymentState> Apply( DeploymentDefinition defn, ApplyOptions options )
     {
         /*
          * 
@@ -26,7 +26,7 @@ public partial class IisDeployer
         /*
          * 
          */
-        using var mgr = new ServerManager();
+        using var mgr = GetIisServerManager();
 
 
         /*
@@ -73,6 +73,30 @@ public partial class IisDeployer
         }
 
         mgr.CommitChanges();
+
+
+        /*
+         * #2B. Stop (managed) pools
+         */
+        if ( options.StartStopManagedApplicationPools == true )
+        {
+            foreach ( var pd in defn.ApplicationPools )
+            {
+                var pool = mgr.ApplicationPools.Single( x => x.Name == pd.Name );
+
+                _logger.LogInformation( "Pool {PoolName}: Stopping", pd.Name );
+
+                if ( pool.State == ObjectState.Started || pool.State == ObjectState.Starting )
+                    pool.Stop();
+
+
+                // Give time for applications to terminate
+                while ( pool.State != ObjectState.Stopped )
+                {
+                    await Task.Delay( 1_000 );
+                }
+            }
+        }
 
 
         /*
@@ -304,9 +328,19 @@ public partial class IisDeployer
 
 
         /*
-         * #7. Recycle (managed) pools
+         * #7. Start/recycle (managed) pools
          */
-        if ( options.RecycleManagedApplicationPools == true )
+        if ( options.StartStopManagedApplicationPools == true )
+        {
+            foreach ( var pd in defn.ApplicationPools )
+            {
+                var pool = mgr.ApplicationPools.Single( x => x.Name == pd.Name );
+
+                _logger.LogInformation( "Pool {PoolName}: Starting", pd.Name );
+                pool.Start();
+            }
+        }
+        else if ( options.RecycleManagedApplicationPools == true )
         {
             foreach ( var p in defn.ApplicationPools )
             {
@@ -329,6 +363,6 @@ public partial class IisDeployer
         /*
          * 
          */
-        return Task.FromResult( state );
+        return state;
     }
 }

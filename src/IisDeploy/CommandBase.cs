@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
-using Yttrium.IisDeploy;
 
 namespace IisKnife
 {
@@ -9,27 +8,20 @@ namespace IisKnife
     public abstract class CommandBase
     {
         /// <summary />
-        protected DeploymentDefinition LoadDefinition( string fileName )
+        protected T Load<T>( string fileName )
         {
-            DeploymentDefinition obj;
+            if ( fileName == null )
+                return Activator.CreateInstance<T>();
+
+
+            /*
+             * 
+             */
+            T obj;
 
             using ( var stream = new FileStream( fileName, FileMode.Open ) )
             {
-                obj = JsonSerializer.Deserialize<DeploymentDefinition>( stream );
-            }
-
-            return obj;
-        }
-
-
-        /// <summary />
-        protected DeploymentMap LoadMap( string fileName )
-        {
-            DeploymentMap obj;
-
-            using ( var stream = new FileStream( fileName, FileMode.Open ) )
-            {
-                obj = JsonSerializer.Deserialize<DeploymentMap>( stream );
+                obj = JsonSerializer.Deserialize<T>( stream );
             }
 
             return obj;

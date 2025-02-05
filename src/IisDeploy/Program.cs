@@ -59,6 +59,12 @@ namespace IisKnife
 
                 return 2;
             }
+            catch ( IisException ex )
+            {
+                logger.Error( ex, "{Message}", ex.Message );
+
+                return 1;
+            }
             catch ( Exception ex )
             {
                 logger.Fatal( ex, "Unhandled: {Message}", ex.Message );

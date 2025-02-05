@@ -38,7 +38,10 @@ namespace IisKnife
         /// <summary />
         public async Task<int> OnExecuteAsync()
         {
-            var defn = LoadDefinition( this.DefinitionFile );
+            /*
+             * 
+             */
+            var defn = Load<DeploymentDefinition>( this.DefinitionFile );
             var state = await _deployer.State( defn );
 
 
