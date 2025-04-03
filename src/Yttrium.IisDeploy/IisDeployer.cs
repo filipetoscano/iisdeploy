@@ -37,8 +37,6 @@ public partial class IisDeployer : IIisDeployer
         }
         catch ( COMException ex )
         {
-            Console.WriteLine( ex.HResult );
-
             if ( ex.HResult == -2147221164 )
                 throw new IisNotInstalledException( $"No IIS installed" );
 
