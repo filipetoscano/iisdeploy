@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/global/">
+    <File Path=".editorconfig" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/IisKnife/IisKnife.csproj" />
+    <Project Path="src/Yttrium.IisDeploy/Yttrium.IisDeploy.csproj" />
+  </Folder>
+</Solution>
