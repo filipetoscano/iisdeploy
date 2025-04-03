@@ -1,6 +1,5 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Yttrium.IisDeploy;
@@ -16,10 +15,10 @@ namespace IisKnife
 
 
         /// <summary />
-        [Argument( 0, Description = "Definition file (JSON)" )]
+        [Argument( 0, Description = "Configuration file (JSON)" )]
         [FileExists]
         [Required]
-        public string DefinitionFile { get; set; }
+        public string ConfigurationFile { get; set; }
 
         /// <summary />
         [Argument( 1, Description = "Source map file (JSON)" )]
@@ -28,7 +27,7 @@ namespace IisKnife
         public string MapFile { get; set; }
 
         /// <summary />
-        [Option( "--options", CommandOptionType.SingleValue, Description = "Options file (JSON)" )]
+        [Option( "--options", CommandOptionType.SingleValue, Description = "Deploy options file (JSON)" )]
         [FileExists]
         public string OptionsFile { get; set; }
 
@@ -47,7 +46,7 @@ namespace IisKnife
             /*
              * 
              */
-            var defn = Load<DeploymentDefinition>( this.DefinitionFile );
+            var defn = Load<DeploymentDefinition>( this.ConfigurationFile );
             var maps = Load<DeploymentMap>( this.MapFile );
             var opts = Load<DeployOptions>( this.OptionsFile );
 

@@ -15,13 +15,13 @@ namespace IisKnife
 
 
         /// <summary />
-        [Argument( 0, Description = "Definition file (JSON)" )]
+        [Argument( 0, Description = "Configuration file (JSON)" )]
         [FileExists]
         [Required]
-        public string DefinitionFile { get; set; }
+        public string ConfigurationFile { get; set; }
 
         /// <summary />
-        [Option( "--options", CommandOptionType.SingleValue, Description = "Options file (JSON)" )]
+        [Option( "--options", CommandOptionType.SingleValue, Description = "Apply options file (JSON)" )]
         [FileExists]
         public string OptionsFile { get; set; }
 
@@ -40,7 +40,7 @@ namespace IisKnife
             /*
              * 
              */
-            var defn = Load<DeploymentDefinition>( this.DefinitionFile );
+            var defn = Load<DeploymentDefinition>( this.ConfigurationFile );
             var opts = Load<ApplyOptions>( this.OptionsFile );
 
 
